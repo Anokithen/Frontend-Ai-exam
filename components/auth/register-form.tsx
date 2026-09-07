@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { PasswordInput } from "@/components/ui/password-input"
 import {
   Select,
   SelectContent,
@@ -74,14 +75,13 @@ export function RegisterForm() {
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" autoComplete="new-password" {...register("password")} />
+            <PasswordInput id="password" autoComplete="new-password" {...register("password")} />
             {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="confirm_password">Confirm password</Label>
-            <Input
+            <PasswordInput
               id="confirm_password"
-              type="password"
               autoComplete="new-password"
               {...register("confirm_password")}
             />
