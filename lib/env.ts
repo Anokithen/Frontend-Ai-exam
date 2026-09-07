@@ -32,6 +32,16 @@ function resolveApiUrl(): string {
     )
   }
 
+  // Every route on the backend is registered under /api. Without the suffix each call lands
+  // on a path Flask does not serve and comes back 404, which reads like the API is missing
+  // rather than like a typo in one variable.
+  if (!url.endsWith("/api")) {
+    throw new Error(
+      `NEXT_PUBLIC_API_URL must end in /api (got "${url}"). ` +
+        `Every backend route lives under /api, e.g. https://your-app.up.railway.app/api.`
+    )
+  }
+
   return url
 }
 
