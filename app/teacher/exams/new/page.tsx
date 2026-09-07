@@ -50,8 +50,10 @@ export default function NewExamPage() {
   const [stages, setStages] = useState<GenerationStage[] | null>(null)
 
   const group = (materials ?? []).filter((m) => m.title === materialTitle)
-  // A PDF's text is read locally and is there straight away. An image's is only there once the
-  // AI has read it during a previous generation — the first run reads it as a visible stage.
+  // A typed PDF's text is read locally and is there straight away; a scanned one is read by
+  // the AI a page at a time, so it can take a while the first time. An image's text is only
+  // there once the AI has read it during a previous generation — the first run reads it as a
+  // visible stage.
   const readableGroup = group.filter((m) => m.file_type === "pdf" || m.has_text)
   const unreadGroup = group.filter((m) => m.file_type === "image" && !m.has_text)
   const effectiveLanguage = language === "Other" ? customLanguage.trim() : language
@@ -68,7 +70,10 @@ export default function NewExamPage() {
     queryFn: async () => {
       const results: { id: string; filename: string; text: string }[] = []
       for (let i = 0; i < readableGroup.length; i++) {
-        setProgress(`Loading text from file ${i + 1} of ${readableGroup.length}...`)
+        setProgress(
+          `Loading text from file ${i + 1} of ${readableGroup.length}` +
+            " (a scanned file is read page by page and can take a few minutes)..."
+        )
         const { text } = await materialService.extractText(readableGroup[i].id)
         results.push({ id: readableGroup[i].id, filename: readableGroup[i].original_filename, text })
       }

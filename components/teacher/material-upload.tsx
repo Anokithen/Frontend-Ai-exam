@@ -44,9 +44,13 @@ export function MaterialUpload() {
         const material = await materialService.upload(file, sharedTitle)
 
         // Images are sent to the AI as images at generation time, so only PDFs need their
-        // text read and stored here.
+        // text read and stored here. A scanned PDF has no text layer and is read page by
+        // page by the AI, so this step is not always quick.
         if (material.file_type === "pdf") {
-          setProgress(`Reading text from ${i + 1} of ${selectedFiles.length}: ${file.name}...`)
+          setProgress(
+            `Reading text from ${i + 1} of ${selectedFiles.length}: ${file.name}` +
+              " (a scan is read page by page and can take a few minutes)..."
+          )
           try {
             await materialService.extractText(material.id)
           } catch {
