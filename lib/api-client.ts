@@ -1,10 +1,19 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios"
 
+import { API_URL } from "@/lib/env"
 import { clearSession, getAccessToken, getRefreshToken, setAccessToken } from "@/lib/tokens"
 import type { ApiError } from "@/types/auth"
 
+/**
+ * The API is a separate deployment, so a request can hang on a cold start or a restart with no
+ * TCP error to end it. Without a ceiling the UI spins forever; the few endpoints that legitimately
+ * run for minutes (AI generation, text extraction, PDF rendering) opt out with `timeout: 0`.
+ */
+const REQUEST_TIMEOUT_MS = 30_000
+
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api",
+  baseURL: API_URL,
+  timeout: REQUEST_TIMEOUT_MS,
 })
 
 apiClient.interceptors.request.use((config) => {
@@ -69,7 +78,18 @@ apiClient.interceptors.response.use(
 
 export function getApiErrorMessage(error: unknown, fallback = "Something went wrong. Please try again."): string {
   if (axios.isAxiosError<ApiError>(error)) {
-    return error.response?.data?.error?.message ?? fallback
+    const message = error.response?.data?.error?.message
+    if (message) return message
+
+    // No response at all: the server never answered, which reads very differently to a user than
+    // a validation error and is the common failure once the API is on its own host.
+    if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
+      return "The server took too long to respond. Please try again."
+    }
+    if (!error.response) {
+      return "Could not reach the server. Check your connection and try again."
+    }
+    return fallback
   }
   return fallback
 }

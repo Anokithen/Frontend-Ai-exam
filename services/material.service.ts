@@ -62,8 +62,11 @@ export const materialService = {
   },
 
   async extractText(id: string, refresh = false) {
+    // Reading an image material can take minutes on the multilingual model, so it never times out.
     const { data } = await apiClient.post<ApiSuccess<{ text: string; cached: boolean }>>(
-      `/materials/${id}/extract-text${refresh ? "?refresh=1" : ""}`
+      `/materials/${id}/extract-text${refresh ? "?refresh=1" : ""}`,
+      undefined,
+      { timeout: 0 }
     )
     return data.data
   },
@@ -74,7 +77,7 @@ export const materialService = {
   },
 
   async download(id: string, filename: string) {
-    const response = await apiClient.get(`/materials/${id}/download`, { responseType: "blob" })
+    const response = await apiClient.get(`/materials/${id}/download`, { responseType: "blob", timeout: 0 })
     const url = URL.createObjectURL(response.data as Blob)
     const link = document.createElement("a")
     link.href = url

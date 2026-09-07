@@ -61,7 +61,8 @@ async function postStream(payload: GeneratePayload, retryOn401 = true): Promise<
 
 export const examService = {
   async generate(payload: GeneratePayload) {
-    const { data } = await apiClient.post<ApiSuccess<Exam>>("/exams/generate", payload)
+    // Model calls run for minutes, so this one waits as long as the server needs.
+    const { data } = await apiClient.post<ApiSuccess<Exam>>("/exams/generate", payload, { timeout: 0 })
     return data.data
   },
 
@@ -155,6 +156,7 @@ export const examService = {
     const response = await apiClient.get(`/exams/${examId}/pdf`, {
       params: withAnswers ? { with_answers: "1" } : undefined,
       responseType: "blob",
+      timeout: 0,
     })
     const url = URL.createObjectURL(response.data as Blob)
     const link = document.createElement("a")
