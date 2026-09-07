@@ -1,18 +1,21 @@
+import Link from "next/link"
+
 import { Button } from "@/components/ui/button"
 
 export default function Page() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
+    <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 text-center">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-semibold">AI Teacher Exam Platform</h1>
+        <p className="max-w-md text-muted-foreground">
+          Generate exam questions from your notes with AI, run timed online exams, and get instant analytics.
+        </p>
+      </div>
+      <div className="flex gap-3">
+        <Button render={<Link href="/login" />}>Sign in</Button>
+        <Button variant="outline" render={<Link href="/register" />}>
+          Create account
+        </Button>
       </div>
     </div>
   )
