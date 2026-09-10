@@ -9,10 +9,10 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
+import { ExtractedTextDialog } from "@/components/teacher/extracted-text-dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import { getApiErrorMessage } from "@/lib/api-client"
 import { examService, type GenerationStage } from "@/services/exam.service"
 import { materialService } from "@/services/material.service"
@@ -223,61 +223,25 @@ export default function NewExamPage() {
 
             {readableGroup.length > 0 && (
               <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <Label>Extracted text</Label>
-                  <span className="text-xs text-muted-foreground">
-                    {combinedText.length.toLocaleString()} characters
-                  </span>
-                </div>
+                <Label>Extracted text</Label>
+                <ExtractedTextDialog
+                  files={(extracted ?? []).map((item) => ({ id: item.id, filename: item.filename }))}
+                  texts={texts}
+                  onTextChange={(materialId, value) =>
+                    setTexts((current) => ({ ...current, [materialId]: value }))
+                  }
+                  onSave={(materialId) => saveTextMutation.mutate(materialId)}
+                  onReread={(materialId) => rereadMutation.mutate(materialId)}
+                  isSaving={saveTextMutation.isPending}
+                  isRereading={rereadMutation.isPending}
+                  isLoading={isLoadingText}
+                  loadingMessage={progress}
+                  totalCharacters={combinedText.length}
+                />
                 <p className="text-xs text-muted-foreground">
-                  This is the text read from your file(s), including any image the AI has already
-                  read. Questions are made only from what is here — fix any mistakes before
-                  generating.
+                  Questions are made only from this text — open it to check or fix what was read
+                  before generating.
                 </p>
-
-                {isLoadingText ? (
-                  <p className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
-                    {progress ?? "Loading text..."}
-                  </p>
-                ) : (
-                  (extracted ?? []).map((item) => (
-                    <div key={item.id} className="flex flex-col gap-1.5">
-                      {readableGroup.length > 1 && (
-                        <span className="truncate text-xs font-medium text-muted-foreground">
-                          {item.filename}
-                        </span>
-                      )}
-                      <Textarea
-                        rows={8}
-                        value={texts[item.id] ?? ""}
-                        onChange={(event) =>
-                          setTexts((current) => ({ ...current, [item.id]: event.target.value }))
-                        }
-                        placeholder="No text was read from this file. Type or paste the text here."
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          disabled={saveTextMutation.isPending || !(texts[item.id] ?? "").trim()}
-                          onClick={() => saveTextMutation.mutate(item.id)}
-                        >
-                          Save text
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          disabled={rereadMutation.isPending}
-                          onClick={() => rereadMutation.mutate(item.id)}
-                        >
-                          {rereadMutation.isPending ? "Reading..." : "Read file again"}
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
               </div>
             )}
 
