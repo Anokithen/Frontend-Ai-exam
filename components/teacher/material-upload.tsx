@@ -86,15 +86,25 @@ export function MaterialUpload() {
     onError: (error) => toast.error(getApiErrorMessage(error, "Failed to delete material.")),
   })
 
+  const fileSummary =
+    selectedFiles.length === 0
+      ? "PDF, JPG or PNG · one or many"
+      : selectedFiles.length === 1
+        ? `${selectedFiles[0].name} · ${formatFileSize(selectedFiles[0].size)}`
+        : `${selectedFiles.length} files selected — they'll share one title and group together`
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Study materials</CardTitle>
-        <CardDescription>Upload a PDF or image for AI question generation.</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-6">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(330px,1fr))] items-start gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Upload material</CardTitle>
+          <CardDescription>
+            PDF, scan or photo. Text is extracted so you can correct it before generating.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
         <form
-          className="flex flex-col gap-3 sm:flex-row sm:items-end"
+          className="flex flex-col"
           onSubmit={(event) => {
             event.preventDefault()
             if (selectedFiles.length === 0) {
@@ -104,66 +114,84 @@ export function MaterialUpload() {
             uploadMutation.mutate()
           }}
         >
-          <div className="flex flex-1 flex-col gap-2">
-            <Label htmlFor="material-title">Title</Label>
-            <Input
-              id="material-title"
-              placeholder="e.g. Chapter 4 notes"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-            />
-          </div>
-          <div className="flex flex-1 flex-col gap-2">
-            <Label htmlFor="material-file">File(s) (PDF or image)</Label>
-            <Input
-              id="material-file"
-              ref={fileInputRef}
-              type="file"
-              accept={ACCEPTED_TYPES}
-              multiple
-              onChange={(event) => setSelectedFiles(Array.from(event.target.files ?? []))}
-            />
-            {selectedFiles.length > 1 && (
-              <p className="text-xs text-muted-foreground">
-                {selectedFiles.length} files selected — they'll share one title and group together.
-              </p>
-            )}
-          </div>
-          <Button type="submit" disabled={uploadMutation.isPending}>
+          <Label htmlFor="material-title" className="mb-2.5 text-[13px] font-normal text-[#93a6bd]">
+            Title
+          </Label>
+          <Input
+            id="material-title"
+            placeholder="Photosynthesis chapter notes"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
+
+          {/* The drop zone is a pressed-in well: the file goes *into* the page. */}
+          <label
+            htmlFor="material-file"
+            className="mt-6 cursor-pointer rounded-3xl bg-background px-6 py-10 text-center shadow-nm-inset transition-shadow hover:shadow-nm-inset-lg"
+          >
+            <span className="mx-auto mb-4 grid size-14 place-items-center rounded-[19px] bg-background shadow-nm-sm">
+              <span className="nm-glow size-4 rounded-[5px]" />
+            </span>
+            <span className="block text-[15px]">
+              {selectedFiles.length ? "Ready to upload" : "Choose a file"}
+            </span>
+            <span className="mt-1.5 block text-[13px] text-nm-dim">{fileSummary}</span>
+          </label>
+          <Input
+            id="material-file"
+            ref={fileInputRef}
+            type="file"
+            accept={ACCEPTED_TYPES}
+            multiple
+            className="sr-only"
+            onChange={(event) => setSelectedFiles(Array.from(event.target.files ?? []))}
+          />
+
+          {uploadMutation.isPending && progress && (
+            <p className="mt-5 rounded-2xl bg-background px-4 py-3 text-xs text-[#93a6bd] shadow-nm-inset-sm">
+              {progress}
+            </p>
+          )}
+
+          <Button type="submit" size="lg" className="mt-6 w-full" disabled={uploadMutation.isPending}>
             {uploadMutation.isPending ? "Working..." : "Upload"}
           </Button>
         </form>
-        {uploadMutation.isPending && progress && (
-          <p className="-mt-3 text-xs text-muted-foreground">{progress}</p>
-        )}
+        </CardContent>
+      </Card>
 
-        <div className="flex flex-col gap-2">
+      {/* Your materials sits in a sunken tray so the upload slab stays the focus. */}
+      <div className="rounded-3xl bg-background p-7 shadow-nm-inset-lg">
+        <h3 className="mb-5 font-heading text-[17px] font-semibold">Your materials</h3>
+        <div className="flex flex-col gap-3">
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Loading materials...</p>
           ) : materials?.length ? (
             materials.map((material) => (
               <div
                 key={material.id}
-                className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2"
+                className="flex items-center justify-between gap-4 rounded-[18px] bg-background px-4 py-4 shadow-nm-sm"
               >
-                <div className="flex items-center gap-2 overflow-hidden">
-                  {material.file_type === "pdf" ? (
-                    <FileText className="size-4 shrink-0 text-muted-foreground" />
-                  ) : (
-                    <ImageIcon className="size-4 shrink-0 text-muted-foreground" />
-                  )}
+                <div className="flex items-center gap-3.5 overflow-hidden">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-background text-nm-dim shadow-nm-xs">
+                    {material.file_type === "pdf" ? (
+                      <FileText className="size-4" />
+                    ) : (
+                      <ImageIcon className="size-4" />
+                    )}
+                  </span>
                   <div className="flex flex-col overflow-hidden">
-                    <span className="truncate text-sm font-medium">{material.title}</span>
-                    <span className="truncate text-xs text-muted-foreground">
+                    <span className="truncate text-[14.5px]">{material.title}</span>
+                    <span className="truncate text-[12.5px] text-nm-dim">
                       {material.original_filename} · {formatFileSize(material.file_size)} ·{" "}
                       {material.has_text ? (
-                        <span className="text-emerald-600 dark:text-emerald-500">
+                        <span className="text-nm-success">
                           text ready ({material.text_length.toLocaleString()} chars)
                         </span>
                       ) : material.file_type === "image" ? (
-                        <span className="text-muted-foreground">AI reads it when you generate</span>
+                        <span className="text-nm-dim">AI reads it when you generate</span>
                       ) : (
-                        <span className="text-amber-600 dark:text-amber-500">text not read yet</span>
+                        <span className="text-nm-warning">text not read yet</span>
                       )}
                     </span>
                   </div>
@@ -194,12 +222,12 @@ export function MaterialUpload() {
               </div>
             ))
           ) : (
-            <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+            <p className="rounded-2xl bg-background px-4 py-8 text-center text-sm text-muted-foreground shadow-nm-sm">
               No materials uploaded yet.
             </p>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

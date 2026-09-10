@@ -6,6 +6,7 @@ import { useEffect } from "react"
 
 import { AdminUserTable } from "@/components/dashboard/admin-user-table"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
+import { PageHeader } from "@/components/dashboard/page-header"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { useAuth } from "@/providers/auth-provider"
 import { adminService } from "@/services/admin.service"
@@ -28,22 +29,23 @@ export default function AdminDashboardPage() {
 
   return (
     <DashboardShell title="Admin Dashboard">
+      <PageHeader title="Users" description="Everyone with an account on this platform." />
+
       {isLoading ? (
         <p className="text-muted-foreground">Loading dashboard...</p>
       ) : (
-        <div className="flex flex-col gap-6">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+        <>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-5">
             <StatCard label="Total users" value={data?.total_users ?? 0} />
             <StatCard label="Teachers" value={data?.total_teachers ?? 0} />
             <StatCard label="Students" value={data?.total_students ?? 0} />
             <StatCard label="Admins" value={data?.total_admins ?? 0} />
             <StatCard label="Active" value={data?.active_users ?? 0} />
           </div>
-          <div className="flex flex-col gap-3">
-            <h2 className="text-base font-semibold">Manage users</h2>
+          <div className="mt-8">
             <AdminUserTable />
           </div>
-        </div>
+        </>
       )}
     </DashboardShell>
   )

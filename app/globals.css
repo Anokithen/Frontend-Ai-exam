@@ -4,126 +4,228 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Neumorphic navy design system.
+ *
+ * Every surface is the SAME colour as the page (--nm-surface) and is separated from it only by
+ * a paired shadow: a dark one down-right and a light one up-left. So there are no borders here,
+ * and a "raised" and a "sunken" element differ only in whether that pair is inset.
+ *
+ * The palette is deliberately single-theme — the shadow pair only reads as depth against this
+ * one navy — so :root and .dark carry identical values and the look survives the theme toggle.
+ */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.148 0.004 228.8);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.148 0.004 228.8);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.148 0.004 228.8);
-    --primary: oklch(0.488 0.243 264.376);
-    --primary-foreground: oklch(0.97 0.014 254.604);
-    --secondary: oklch(0.967 0.001 286.375);
-    --secondary-foreground: oklch(0.21 0.006 285.885);
-    --muted: oklch(0.963 0.002 197.1);
-    --muted-foreground: oklch(0.56 0.021 213.5);
-    --accent: oklch(0.963 0.002 197.1);
-    --accent-foreground: oklch(0.218 0.008 223.9);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.925 0.005 214.3);
-    --input: oklch(0.925 0.005 214.3);
-    --ring: oklch(0.723 0.014 214.4);
-    --chart-1: oklch(0.809 0.105 251.813);
-    --chart-2: oklch(0.623 0.214 259.815);
-    --chart-3: oklch(0.546 0.245 262.881);
-    --chart-4: oklch(0.488 0.243 264.376);
-    --chart-5: oklch(0.424 0.199 265.638);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.987 0.002 197.1);
-    --sidebar-foreground: oklch(0.148 0.004 228.8);
-    --sidebar-primary: oklch(0.546 0.245 262.881);
-    --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
-    --sidebar-accent: oklch(0.963 0.002 197.1);
-    --sidebar-accent-foreground: oklch(0.218 0.008 223.9);
-    --sidebar-border: oklch(0.925 0.005 214.3);
-    --sidebar-ring: oklch(0.723 0.014 214.4);
+  /* Neumorphic primitives — the four shadow colours are the whole system. */
+  --nm-surface: #1c2734;
+  --nm-shadow-dark: #141c26;
+  --nm-shadow-light: #243244;
+  --nm-inset-dark: #151e28;
+  --nm-inset-light: #23303f;
+
+  --nm-accent: #4d8dff;
+  --nm-accent-soft: #6ea8ff;
+  --nm-accent-bright: #9cc4ff;
+  --nm-success: #4dd8a0;
+  --nm-success-solid: #3fbf8c;
+  --nm-warning: #c0a36a;
+  --nm-danger: #ff8f8f;
+
+  --nm-text: #e4ecf7;
+  --nm-text-muted: #8fa2b8;
+  --nm-text-dim: #8496ac;
+  --nm-text-faint: #75879c;
+
+  /* Depth scale. Raised lifts off the page, inset presses into it. */
+  --nm-depth-xs:
+    5px 5px 11px var(--nm-shadow-dark), -5px -5px 11px var(--nm-shadow-light);
+  --nm-depth-sm:
+    7px 7px 15px var(--nm-shadow-dark), -6px -6px 14px var(--nm-shadow-light);
+  --nm-depth:
+    8px 8px 18px var(--nm-shadow-dark), -7px -7px 16px var(--nm-shadow-light);
+  --nm-depth-md:
+    12px 12px 26px var(--nm-shadow-dark),
+    -10px -10px 24px var(--nm-shadow-light);
+  --nm-depth-lg:
+    16px 16px 34px var(--nm-shadow-dark),
+    -13px -13px 30px var(--nm-shadow-light);
+  --nm-depth-inset-sm:
+    inset 3px 3px 7px var(--nm-inset-dark),
+    inset -3px -3px 7px var(--nm-inset-light);
+  --nm-depth-inset:
+    inset 5px 5px 11px var(--nm-inset-dark),
+    inset -5px -5px 11px var(--nm-inset-light);
+  --nm-depth-inset-lg:
+    inset 6px 6px 13px var(--nm-inset-dark),
+    inset -6px -6px 13px var(--nm-inset-light);
+  /* The accent's own lift: the same pair plus a top highlight so it reads as a lit surface. */
+  --nm-depth-accent:
+    10px 10px 22px var(--nm-shadow-dark), -8px -8px 18px var(--nm-shadow-light),
+    inset 0 1px 0 rgb(255 255 255 / 0.28);
+
+  /* shadcn token layer, mapped onto the palette above so every existing component inherits it. */
+  --background: var(--nm-surface);
+  --foreground: var(--nm-text);
+  --card: var(--nm-surface);
+  --card-foreground: var(--nm-text);
+  --popover: var(--nm-surface);
+  --popover-foreground: var(--nm-text);
+  --primary: var(--nm-accent);
+  --primary-foreground: #eaf2ff;
+  --secondary: var(--nm-surface);
+  --secondary-foreground: #c6d3e3;
+  --muted: #22303f;
+  --muted-foreground: var(--nm-text-muted);
+  --accent: #22303f;
+  --accent-foreground: var(--nm-text);
+  --destructive: var(--nm-danger);
+  /* No borders in this system — depth comes from the shadow pair, not an outline. */
+  --border: transparent;
+  --input: transparent;
+  --ring: var(--nm-accent);
+  --chart-1: var(--nm-accent);
+  --chart-2: var(--nm-accent-soft);
+  --chart-3: var(--nm-success);
+  --chart-4: var(--nm-warning);
+  --chart-5: var(--nm-danger);
+  --radius: 1rem;
+  --sidebar: var(--nm-surface);
+  --sidebar-foreground: var(--nm-text);
+  --sidebar-primary: var(--nm-accent);
+  --sidebar-primary-foreground: #eaf2ff;
+  --sidebar-accent: #22303f;
+  --sidebar-accent-foreground: var(--nm-text);
+  --sidebar-border: transparent;
+  --sidebar-ring: var(--nm-accent);
 }
 
+/* Single-theme by design: the toggle changes nothing, so a stale `light` class can't break it. */
 .dark {
-    --background: oklch(0.148 0.004 228.8);
-    --foreground: oklch(0.987 0.002 197.1);
-    --card: oklch(0.218 0.008 223.9);
-    --card-foreground: oklch(0.987 0.002 197.1);
-    --popover: oklch(0.218 0.008 223.9);
-    --popover-foreground: oklch(0.987 0.002 197.1);
-    --primary: oklch(0.424 0.199 265.638);
-    --primary-foreground: oklch(0.97 0.014 254.604);
-    --secondary: oklch(0.274 0.006 286.033);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.275 0.011 216.9);
-    --muted-foreground: oklch(0.723 0.014 214.4);
-    --accent: oklch(0.275 0.011 216.9);
-    --accent-foreground: oklch(0.987 0.002 197.1);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.56 0.021 213.5);
-    --chart-1: oklch(0.809 0.105 251.813);
-    --chart-2: oklch(0.623 0.214 259.815);
-    --chart-3: oklch(0.546 0.245 262.881);
-    --chart-4: oklch(0.488 0.243 264.376);
-    --chart-5: oklch(0.424 0.199 265.638);
-    --sidebar: oklch(0.218 0.008 223.9);
-    --sidebar-foreground: oklch(0.987 0.002 197.1);
-    --sidebar-primary: oklch(0.623 0.214 259.815);
-    --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
-    --sidebar-accent: oklch(0.275 0.011 216.9);
-    --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.56 0.021 213.5);
+  --background: var(--nm-surface);
+  --foreground: var(--nm-text);
+  --card: var(--nm-surface);
+  --card-foreground: var(--nm-text);
+  --popover: var(--nm-surface);
+  --popover-foreground: var(--nm-text);
+  --primary: var(--nm-accent);
+  --primary-foreground: #eaf2ff;
+  --secondary: var(--nm-surface);
+  --secondary-foreground: #c6d3e3;
+  --muted: #22303f;
+  --muted-foreground: var(--nm-text-muted);
+  --accent: #22303f;
+  --accent-foreground: var(--nm-text);
+  --destructive: var(--nm-danger);
+  --border: transparent;
+  --input: transparent;
+  --ring: var(--nm-accent);
+  --sidebar: var(--nm-surface);
+  --sidebar-foreground: var(--nm-text);
+  --sidebar-accent: #22303f;
+  --sidebar-accent-foreground: var(--nm-text);
+  --sidebar-border: transparent;
 }
 
 @theme inline {
-    --font-sans: var(--font-tamil), var(--font-sans);
-    --font-heading: var(--font-heading);
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+  /* DM Sans carries the UI; Tamil has no DM Sans coverage so it falls through to Noto Sans Tamil. */
+  --font-sans: var(--font-dm-sans), var(--font-tamil), system-ui, sans-serif;
+  --font-heading:
+    var(--font-space-grotesk), var(--font-dm-sans), system-ui, sans-serif;
+
+  --color-nm-accent: var(--nm-accent);
+  --color-nm-accent-soft: var(--nm-accent-soft);
+  --color-nm-accent-bright: var(--nm-accent-bright);
+  --color-nm-success: var(--nm-success);
+  --color-nm-warning: var(--nm-warning);
+  --color-nm-danger: var(--nm-danger);
+  --color-nm-dim: var(--nm-text-dim);
+  --color-nm-faint: var(--nm-text-faint);
+
+  --shadow-nm-xs: var(--nm-depth-xs);
+  --shadow-nm-sm: var(--nm-depth-sm);
+  --shadow-nm: var(--nm-depth);
+  --shadow-nm-md: var(--nm-depth-md);
+  --shadow-nm-lg: var(--nm-depth-lg);
+  --shadow-nm-inset-sm: var(--nm-depth-inset-sm);
+  --shadow-nm-inset: var(--nm-depth-inset);
+  --shadow-nm-inset-lg: var(--nm-depth-inset-lg);
+  --shadow-nm-accent: var(--nm-depth-accent);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.15);
+  --radius-2xl: calc(var(--radius) * 1.5);
+  --radius-3xl: calc(var(--radius) * 1.75);
+  --radius-4xl: calc(var(--radius) * 1.9);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
     @apply bg-background text-foreground;
-    }
+  }
   html {
     @apply font-sans;
-    }
+  }
+  a {
+    color: var(--nm-accent-soft);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--nm-accent-bright);
+  }
+}
+
+@layer components {
+  /* The three surface roles. Anything that should read as a physical part uses one of them. */
+  .nm-raised {
+    background: var(--nm-surface);
+    box-shadow: var(--shadow-nm-md);
+  }
+  .nm-raised-sm {
+    background: var(--nm-surface);
+    box-shadow: var(--shadow-nm-sm);
+  }
+  .nm-inset {
+    background: var(--nm-surface);
+    box-shadow: var(--shadow-nm-inset);
+  }
+  /* The glowing accent chip in the logo mark and any other "live" indicator. */
+  .nm-glow {
+    background: var(--nm-accent);
+    box-shadow: 0 0 14px rgb(77 141 255 / 0.65);
+  }
 }

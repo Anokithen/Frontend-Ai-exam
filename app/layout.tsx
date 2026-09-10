@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { Geist_Mono, Noto_Sans, Noto_Sans_Tamil, Roboto } from "next/font/google"
+import { DM_Sans, Geist_Mono, Noto_Sans_Tamil, Space_Grotesk } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -8,13 +8,18 @@ import { AuthProvider } from "@/providers/auth-provider"
 import { QueryProvider } from "@/providers/query-provider"
 import { cn } from "@/lib/utils"
 
-const robotoHeading = Roboto({ subsets: ["latin"], variable: "--font-heading" })
+// Space Grotesk sets every heading and numeric readout; DM Sans carries the body text.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-space-grotesk",
+})
 
-const notoSans = Noto_Sans({ subsets: ["latin"], variable: "--font-sans" })
+const dmSans = DM_Sans({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-dm-sans" })
 
-// Noto Sans (Latin) has no Tamil glyphs, so Tamil-language exam content would
-// fall back to whatever font the OS happens to have — load Tamil explicitly
-// and put it first in the --font-sans stack (see globals.css) so it always wins.
+// Neither Latin face has Tamil glyphs, so Tamil-language exam content would fall back to
+// whatever font the OS happens to have — load Tamil explicitly and sit it behind DM Sans in
+// the --font-sans stack (see globals.css), where only the characters DM Sans lacks reach it.
 const notoSansTamil = Noto_Sans_Tamil({ subsets: ["tamil"], weight: ["400", "700"], variable: "--font-tamil" })
 
 const fontMono = Geist_Mono({
@@ -56,12 +61,10 @@ export const metadata: Metadata = {
   },
 }
 
+// The neumorphic palette is a single dark theme, so the browser chrome is pinned to it.
 export const viewport: Viewport = {
-  colorScheme: "light dark",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
+  colorScheme: "dark",
+  themeColor: "#1c2734",
 }
 
 export default function RootLayout({
@@ -77,9 +80,9 @@ export default function RootLayout({
         "antialiased",
         fontMono.variable,
         "font-sans",
-        notoSans.variable,
+        dmSans.variable,
         notoSansTamil.variable,
-        robotoHeading.variable
+        spaceGrotesk.variable
       )}
     >
       <body>

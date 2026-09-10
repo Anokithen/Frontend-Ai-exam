@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
+import { PageHeader } from "@/components/dashboard/page-header"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { getApiErrorMessage } from "@/lib/api-client"
@@ -28,10 +29,12 @@ export default function JoinRoomPage() {
 
   return (
     <DashboardShell title="Join an exam">
-      <Card className="mx-auto max-w-sm">
+      <PageHeader title="Join an exam" description="Ask your teacher for the room's invite code." />
+
+      <Card className="mx-auto max-w-md">
         <CardHeader>
           <CardTitle>Enter invite code</CardTitle>
-          <CardDescription>Ask your teacher for the exam room's invite code.</CardDescription>
+          <CardDescription>Five characters, the same for everyone in the room.</CardDescription>
         </CardHeader>
         <CardContent>
           <form
@@ -48,12 +51,12 @@ export default function JoinRoomPage() {
                 id="invite-code"
                 value={code}
                 onChange={(event) => setCode(event.target.value)}
-                className="text-center text-lg tracking-widest uppercase"
+                className="h-20 rounded-[22px] text-center font-heading text-[32px] font-bold tracking-[0.18em] text-nm-accent-bright uppercase"
                 maxLength={6}
                 autoFocus
               />
             </div>
-            <Button type="submit" disabled={joinMutation.isPending}>
+            <Button type="submit" size="lg" className="w-full" disabled={joinMutation.isPending}>
               {joinMutation.isPending ? "Joining..." : "Join"}
             </Button>
           </form>

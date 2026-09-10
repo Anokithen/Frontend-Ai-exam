@@ -5,17 +5,30 @@ import { useParams, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
+import { LogoMark } from "@/components/dashboard/logo-mark"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { DashboardShell } from "@/components/dashboard/dashboard-shell"
 import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
 import { getApiErrorMessage } from "@/lib/api-client"
 import { roomService } from "@/services/room.service"
+import type { QuestionType } from "@/types/exam"
+
+const TYPE_LABEL: Record<QuestionType, string> = {
+  mcq: "Multiple choice",
+  structured: "Structured",
+  essay: "Essay",
+}
+
+const TYPE_COLOR: Record<QuestionType, string> = {
+  mcq: "text-[#4dd8a0]",
+  structured: "text-[#7bc6ff]",
+  essay: "text-[#c9a6ff]",
+}
 
 function formatRemaining(seconds: number) {
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
-  return `${m}:${s.toString().padStart(2, "0")}`
+  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`
 }
 
 export default function TakeExamPage() {
@@ -56,6 +69,9 @@ export default function TakeExamPage() {
     {}
   )
   const [remaining, setRemaining] = useState<number | null>(null)
+  const [index, setIndex] = useState(0)
+  // Flags are a private review aid — they live for this sitting only and are never sent up.
+  const [flags, setFlags] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     if (!exam) return
@@ -106,72 +122,218 @@ export default function TakeExamPage() {
 
   if (!exam) {
     return (
-      <DashboardShell title="Exam">
-        <p className="text-sm text-muted-foreground">Loading exam...</p>
-      </DashboardShell>
+      <div className="grid min-h-svh place-items-center bg-background text-sm text-muted-foreground">
+        Loading exam...
+      </div>
     )
   }
 
-  return (
-    <DashboardShell title={exam.title}>
-      <div className="mx-auto flex max-w-2xl flex-col gap-4">
-        <div className="sticky top-0 z-10 flex items-center justify-between rounded-lg border bg-background p-3">
-          <p className="text-sm text-muted-foreground">Total marks: {exam.total_marks}</p>
-          <p className="text-lg font-semibold tabular-nums">
-            {remaining !== null ? formatRemaining(remaining) : "--:--"}
-          </p>
-        </div>
+  const questions = exam.questions ?? []
+  const question = questions[index]
+  const answered = questions.filter((item) => {
+    const answer = answers[item.id]
+    return answer?.selected_option_index != null || Boolean(answer?.response_text?.trim())
+  }).length
+  const flaggedCount = Object.values(flags).filter(Boolean).length
+  const written = answers[question?.id ?? ""]?.response_text ?? ""
 
-        {exam.questions?.map((question, index) => (
-          <Card key={question.id}>
-            <CardHeader>
-              <CardTitle className="text-base">
-                {index + 1}. {question.prompt} <span className="text-muted-foreground">({question.marks} marks)</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+  return (
+    <div className="min-h-svh bg-background text-foreground">
+      {/* The exam has no nav: nothing to click away to while the clock runs. */}
+      <header className="sticky top-0 z-10 bg-background shadow-[0_10px_26px_rgb(15_22_30_/_0.55)]">
+        <div className="mx-auto flex w-full max-w-[1080px] flex-wrap items-center gap-4 px-6 py-4">
+          <div className="mr-auto flex items-center gap-3">
+            <LogoMark />
+            <div>
+              <div className="text-[14.5px] font-medium">{exam.title}</div>
+              <div className="mt-0.5 text-[12.5px] text-nm-dim">
+                {questions.length} questions · {exam.total_marks} marks
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-2xl bg-background px-5 py-2.5 shadow-nm-inset">
+            <span className="text-[12.5px] text-nm-dim">Time left</span>
+            <span
+              className={cn(
+                "font-heading text-lg font-semibold tabular-nums",
+                remaining !== null && remaining < 300 ? "text-[#ff9f8f]" : "text-foreground"
+              )}
+            >
+              {remaining !== null ? formatRemaining(remaining) : "--:--"}
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto flex w-full max-w-[1080px] flex-wrap items-start gap-6 px-6 pt-8 pb-16">
+        <div className="flex min-w-0 flex-[1_1_340px] flex-col gap-5">
+          {question ? (
+            <div className="rounded-[28px] bg-background p-8 shadow-nm-md">
+              <div className="mb-5 flex flex-wrap items-center gap-3.5">
+                <span className="text-[13px] text-nm-dim">
+                  Question {index + 1} of {questions.length}
+                </span>
+                <span
+                  className={cn(
+                    "rounded-full bg-background px-3.5 py-1.5 text-[11.5px] tracking-wide shadow-nm-inset-sm",
+                    TYPE_COLOR[question.type]
+                  )}
+                >
+                  {TYPE_LABEL[question.type]}
+                </span>
+                <span className="ml-auto text-[12.5px] text-nm-dim">
+                  {question.marks} {question.marks === 1 ? "mark" : "marks"}
+                </span>
+              </div>
+
+              <h2 className="mb-7 font-heading text-[22px] leading-snug font-semibold tracking-tight text-pretty">
+                {question.prompt}
+              </h2>
+
               {question.type === "mcq" ? (
-                <div className="flex flex-col gap-2">
-                  {(question.options ?? []).map((option, optIndex) => (
-                    <label key={optIndex} className="flex items-center gap-2 text-sm">
-                      <input
-                        type="radio"
-                        name={question.id}
-                        checked={answers[question.id]?.selected_option_index === optIndex}
-                        onChange={() => saveAnswer(question.id, { selected_option_index: optIndex })}
-                      />
-                      {option}
-                    </label>
-                  ))}
+                <div role="radiogroup" aria-label="Answer options" className="flex flex-col gap-3.5">
+                  {(question.options ?? []).map((option, optIndex) => {
+                    const chosen = answers[question.id]?.selected_option_index === optIndex
+                    return (
+                      /* The chosen option is the one pressed into the page. */
+                      <button
+                        key={optIndex}
+                        type="button"
+                        role="radio"
+                        aria-checked={chosen}
+                        onClick={() => saveAnswer(question.id, { selected_option_index: optIndex })}
+                        className={cn(
+                          "flex items-center gap-4 rounded-[18px] bg-background px-5 py-4.5 text-left text-[15.5px] transition-all",
+                          chosen ? "text-foreground shadow-nm-inset-lg" : "text-[#a4b5c8] shadow-nm"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "grid size-9 shrink-0 place-items-center rounded-xl font-heading text-[13.5px]",
+                            chosen
+                              ? "bg-primary text-primary-foreground shadow-[0_0_14px_rgb(77_141_255_/_0.55),inset_0_1px_0_rgb(255_255_255_/_0.3)]"
+                              : "bg-background text-nm-dim shadow-nm-inset-sm"
+                          )}
+                        >
+                          {String.fromCharCode(65 + optIndex)}
+                        </span>
+                        <span className="flex-1">{option}</span>
+                      </button>
+                    )
+                  })}
                 </div>
               ) : (
-                <Textarea
-                  value={answers[question.id]?.response_text ?? ""}
-                  onChange={(event) =>
-                    setAnswers((prev) => ({
-                      ...prev,
-                      [question.id]: { ...prev[question.id], response_text: event.target.value },
-                    }))
-                  }
-                  onBlur={(event) => saveAnswer(question.id, { response_text: event.target.value })}
-                  placeholder="Type your answer..."
-                  rows={question.type === "essay" ? 8 : 4}
-                />
+                <div>
+                  <Textarea
+                    aria-label="Your answer"
+                    value={written}
+                    onChange={(event) =>
+                      setAnswers((prev) => ({
+                        ...prev,
+                        [question.id]: { ...prev[question.id], response_text: event.target.value },
+                      }))
+                    }
+                    onBlur={(event) => saveAnswer(question.id, { response_text: event.target.value })}
+                    placeholder="Type your answer"
+                    className={cn(
+                      "rounded-[20px] px-6 py-5 text-[15px] leading-relaxed",
+                      question.type === "essay" ? "min-h-[280px]" : "min-h-[170px]"
+                    )}
+                  />
+                  <div className="mt-2.5 text-[12.5px] text-nm-dim">
+                    {written.trim().split(/\s+/).filter(Boolean).length} words
+                  </div>
+                </div>
               )}
-            </CardContent>
-          </Card>
-        ))}
 
-        <Button
-          onClick={() => {
-            submittedRef.current = true
-            submitMutation.mutate()
-          }}
-          disabled={submitMutation.isPending}
-        >
-          {submitMutation.isPending ? "Submitting..." : "Submit exam"}
-        </Button>
-      </div>
-    </DashboardShell>
+              <div className="mt-7 flex flex-wrap gap-3.5">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  disabled={index === 0}
+                  onClick={() => setIndex((current) => Math.max(0, current - 1))}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  aria-pressed={Boolean(flags[question.id])}
+                  className={cn(flags[question.id] && "text-[#f2c46a] shadow-nm-inset")}
+                  onClick={() => setFlags((prev) => ({ ...prev, [question.id]: !prev[question.id] }))}
+                >
+                  {flags[question.id] ? "Flagged" : "Flag for review"}
+                </Button>
+                <Button
+                  size="lg"
+                  className="ml-auto"
+                  disabled={index >= questions.length - 1}
+                  onClick={() => setIndex((current) => Math.min(questions.length - 1, current + 1))}
+                >
+                  {index >= questions.length - 1 ? "Last question" : "Next question"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p className="rounded-3xl bg-background p-8 text-sm text-muted-foreground shadow-nm-inset">
+              This exam has no questions.
+            </p>
+          )}
+        </div>
+
+        <aside className="sticky top-24 min-w-0 max-w-[280px] flex-[1_1_240px] rounded-[26px] bg-background p-6 shadow-nm-md">
+          <div className="mb-4 text-[13px] text-nm-dim">Progress</div>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(42px,1fr))] gap-2.5">
+            {questions.map((item, itemIndex) => {
+              const answer = answers[item.id]
+              const has = answer?.selected_option_index != null || Boolean(answer?.response_text?.trim())
+              const current = itemIndex === index
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  aria-label={`Go to question ${itemIndex + 1}`}
+                  aria-current={current ? "true" : undefined}
+                  onClick={() => setIndex(itemIndex)}
+                  className={cn(
+                    "aspect-square rounded-xl font-heading text-[13.5px] transition-all",
+                    current
+                      ? "bg-primary text-primary-foreground shadow-[0_0_14px_rgb(77_141_255_/_0.5),inset_0_1px_0_rgb(255_255_255_/_0.28)]"
+                      : has
+                        ? "bg-background text-nm-success shadow-nm-xs"
+                        : cn(
+                            "bg-background shadow-nm-inset-sm",
+                            flags[item.id] ? "text-[#f2c46a]" : "text-nm-dim"
+                          )
+                  )}
+                >
+                  {itemIndex + 1}
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="mt-5 text-[12.5px] leading-loose text-nm-dim">
+            <div>
+              {answered} of {questions.length} answered
+            </div>
+            <div>{flaggedCount} flagged for review</div>
+          </div>
+
+          <Button
+            size="lg"
+            className="mt-5 w-full"
+            onClick={() => {
+              if (!window.confirm("Submit the exam? You can't change your answers afterwards.")) return
+              submittedRef.current = true
+              submitMutation.mutate()
+            }}
+            disabled={submitMutation.isPending}
+          >
+            {submitMutation.isPending ? "Submitting..." : "Submit exam"}
+          </Button>
+        </aside>
+      </main>
+    </div>
   )
 }

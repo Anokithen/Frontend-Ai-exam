@@ -1,16 +1,17 @@
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
 
+/** Status pills read as stamped into the surface — a small inset pair, colour carried by the text. */
 const badgeVariants = cva(
-  "inline-flex w-fit shrink-0 items-center gap-1 rounded-md border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap [&_svg]:pointer-events-none [&_svg]:size-3",
+  "inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full border-0 bg-background px-3.5 py-1.5 text-xs font-medium tracking-wide whitespace-nowrap shadow-nm-inset-sm [&_svg]:pointer-events-none [&_svg]:size-3",
   {
     variants: {
       variant: {
-        default: "bg-primary/10 text-primary",
-        secondary: "bg-secondary text-secondary-foreground",
-        success: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-        destructive: "bg-destructive/10 text-destructive",
-        outline: "border-border text-foreground",
+        default: "text-nm-accent-soft",
+        secondary: "text-nm-warning",
+        success: "text-nm-success",
+        destructive: "text-destructive",
+        outline: "text-muted-foreground",
       },
     },
     defaultVariants: {

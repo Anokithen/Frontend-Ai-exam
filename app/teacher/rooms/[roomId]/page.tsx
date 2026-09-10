@@ -3,24 +3,40 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { useParams } from "next/navigation"
+import { useState } from "react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
+import { cn } from "@/lib/utils"
 import { getApiErrorMessage } from "@/lib/api-client"
 import { examService } from "@/services/exam.service"
 import type { RoomParticipant } from "@/types/exam"
+
+function initials(name: string) {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word[0]?.toUpperCase() ?? "")
+      .join("") || "?"
+  )
+}
 
 export default function RoomDetailPage() {
   const params = useParams<{ roomId: string }>()
   const roomId = params.roomId
   const queryClient = useQueryClient()
+  const [copied, setCopied] = useState(false)
 
   const { data: room, isLoading } = useQuery({
     queryKey: ["rooms", roomId],
     queryFn: () => examService.getRoom(roomId),
+    // Students join and submit while this page is open, so it refreshes itself.
+    refetchInterval: 15_000,
   })
 
   const closeMutation = useMutation({
@@ -41,53 +57,122 @@ export default function RoomDetailPage() {
   }
 
   const participants = (room.participants ?? []) as unknown as RoomParticipant[]
+  const submitted = participants.filter((p) => p.submission?.submitted_at).length
+
+  async function copyCode() {
+    try {
+      await navigator.clipboard.writeText(room!.invite_code)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    } catch {
+      toast.error("Couldn't copy the code — select it and copy manually.")
+    }
+  }
 
   return (
     <DashboardShell title={room.exam_title ?? "Exam room"}>
-      <div className="mx-auto flex max-w-2xl flex-col gap-6">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Invite code</CardTitle>
-              <Badge variant={room.status === "open" ? "success" : "secondary"}>{room.status}</Badge>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(330px,1fr))] items-start gap-6">
+        <div className="flex min-w-0 flex-col gap-6">
+          <div className="rounded-[30px] bg-background p-8 text-center shadow-nm-lg">
+            <div className="mb-4 text-[13.5px] text-nm-dim">Invite code</div>
+            {/* The code is pressed into the surface — the one thing on the page to read aloud. */}
+            <div className="rounded-[22px] bg-background px-3 py-6 font-heading text-[44px] font-bold tracking-[0.18em] text-nm-accent-bright shadow-nm-inset-lg [text-shadow:0_0_22px_rgb(77_141_255_/_0.35)]">
+              {room.invite_code}
             </div>
-            <CardDescription>Share this code with students so they can join.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex items-center justify-between gap-4">
-            <p className="text-3xl font-bold tracking-widest">{room.invite_code}</p>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" render={<Link href={`/teacher/rooms/${roomId}/grade`} />}>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Button variant="outline" onClick={copyCode}>
+                {copied ? "Copied ✓" : "Copy code"}
+              </Button>
+              <Button variant="outline" render={<Link href={`/teacher/rooms/${roomId}/grade`} />}>
                 Grading
               </Button>
+            </div>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{room.exam_title ?? "Exam"}</CardTitle>
+              <CardDescription>{room.time_limit_minutes} min · joined by invite code</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3.5">
+                {[
+                  { value: participants.length, label: "Joined" },
+                  { value: submitted, label: "Submitted" },
+                  { value: participants.length - submitted, label: "In progress" },
+                ].map((counter) => (
+                  <div
+                    key={counter.label}
+                    className="rounded-[18px] bg-background px-4 py-5 shadow-nm-inset-sm"
+                  >
+                    <div className="font-heading text-2xl font-semibold">{counter.value}</div>
+                    <div className="mt-1.5 text-[12.5px] text-nm-dim">{counter.label}</div>
+                  </div>
+                ))}
+              </div>
+
               {room.status === "open" && (
-                <Button variant="destructive" size="sm" onClick={() => closeMutation.mutate()} disabled={closeMutation.isPending}>
-                  Close room
+                <Button
+                  variant="destructive"
+                  size="lg"
+                  className="mt-6 w-full"
+                  onClick={() => closeMutation.mutate()}
+                  disabled={closeMutation.isPending}
+                >
+                  {closeMutation.isPending ? "Closing..." : "Close room"}
                 </Button>
               )}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Participants ({participants.length})</CardTitle>
+            <div className="flex flex-wrap items-center gap-3.5">
+              <CardTitle className="mr-auto">Participants</CardTitle>
+              <Badge variant={room.status === "open" ? "success" : "outline"}>
+                {room.status === "open" ? "Room open" : "Room closed"}
+              </Badge>
+            </div>
           </CardHeader>
-          <CardContent className="flex flex-col gap-2">
+          <CardContent className="flex flex-col gap-3">
             {participants.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No one has joined yet.</p>
+              <p className="rounded-2xl bg-background px-5 py-8 text-center text-sm text-muted-foreground shadow-nm-inset">
+                No one has joined yet. Read out the code above.
+              </p>
             ) : (
-              participants.map((p, index) => (
-                <div key={index} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
-                  <div>
-                    <p className="font-medium">{p.student_name}</p>
-                    <p className="text-xs text-muted-foreground">{p.student_email}</p>
+              participants.map((participant, index) => {
+                const submission = participant.submission
+                const done = Boolean(submission?.submitted_at)
+                const scored = submission?.total_score != null
+                return (
+                  <div
+                    key={index}
+                    className="flex flex-wrap items-center gap-4 rounded-[18px] bg-background px-4 py-4 shadow-nm"
+                  >
+                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-background text-[13px] text-nm-accent-bright shadow-nm-inset-sm">
+                      {initials(participant.student_name)}
+                    </span>
+                    <div className="min-w-[140px] flex-1">
+                      <div className="text-[14.5px]">{participant.student_name}</div>
+                      <div className="truncate text-[12.3px] text-nm-dim">{participant.student_email}</div>
+                    </div>
+                    {scored && (
+                      <span className="text-[12.5px] text-nm-dim">
+                        {submission!.total_score} / {submission!.max_score}
+                      </span>
+                    )}
+                    <span
+                      className={cn(
+                        "min-w-[78px] text-right text-[11.5px] tracking-wide uppercase",
+                        done ? "text-nm-success" : room.status === "open" ? "text-nm-accent-bright" : "text-nm-dim"
+                      )}
+                    >
+                      {submission ? (done ? "Submitted" : "Writing") : "Not started"}
+                    </span>
                   </div>
-                  <Badge variant="outline">
-                    {p.submission ? p.submission.status : "not started"}
-                    {p.submission?.total_score != null ? ` · ${p.submission.total_score}/${p.submission.max_score}` : ""}
-                  </Badge>
-                </div>
-              ))
+                )
+              })
             )}
           </CardContent>
         </Card>

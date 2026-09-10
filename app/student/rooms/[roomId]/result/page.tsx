@@ -29,18 +29,18 @@ export default function ExamResultPage() {
 
   return (
     <DashboardShell title={exam.title}>
-      <div className="mx-auto flex max-w-2xl flex-col gap-4">
+      <div className="mx-auto flex max-w-2xl flex-col gap-5">
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Result</CardTitle>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <CardTitle>{exam.title}</CardTitle>
               <Badge variant={submission.status === "graded" ? "success" : "secondary"}>
                 {submission.status === "graded" ? "Fully graded" : "Awaiting grading"}
               </Badge>
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">
+            <p className="font-heading text-[38px] font-semibold tracking-tight text-nm-accent-bright">
               {submission.total_score ?? 0} / {submission.max_score}
             </p>
             {submission.status !== "graded" && (
@@ -56,11 +56,15 @@ export default function ExamResultPage() {
             <CardHeader>
               <CardTitle className="text-base">{answer.question_prompt}</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col gap-1 text-sm">
+            <CardContent className="flex flex-col gap-3 text-sm">
               <p className="text-muted-foreground">
                 Score: {answer.score ?? "pending"} / {answer.marks}
               </p>
-              {answer.feedback && <p className="italic">"{answer.feedback}"</p>}
+              {answer.feedback && (
+                <p className="rounded-2xl bg-background px-5 py-4 leading-relaxed text-secondary-foreground shadow-nm-inset">
+                  {answer.feedback}
+                </p>
+              )}
             </CardContent>
           </Card>
         ))}

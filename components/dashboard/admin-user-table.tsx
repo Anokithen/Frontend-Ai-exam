@@ -2,10 +2,11 @@
 
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"
 import { useState } from "react"
+import { Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -14,12 +15,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 import { getApiErrorMessage } from "@/lib/api-client"
 import { adminService } from "@/services/admin.service"
 import type { UserRole } from "@/types/auth"
 
 type RoleFilter = UserRole | "all"
 type StatusFilter = "all" | "active" | "inactive"
+
+const ROLE_FILTERS: { value: RoleFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "teacher", label: "Teacher" },
+  { value: "student", label: "Student" },
+  { value: "admin", label: "Admin" },
+]
+
+/** Role reads as a coloured word rather than a chip, so a scan down the column groups by hue. */
+const ROLE_COLOR: Record<UserRole, string> = {
+  teacher: "text-[#7bc6ff]",
+  student: "text-[#4dd8a0]",
+  admin: "text-[#c9a6ff]",
+}
+
+function initials(name: string) {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word[0]?.toUpperCase() ?? "")
+      .join("") || "?"
+  )
+}
 
 export function AdminUserTable() {
   const queryClient = useQueryClient()
@@ -63,168 +90,169 @@ export function AdminUserTable() {
   })
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <Input
-          placeholder="Search by name or email"
-          value={search}
-          onChange={(event) => {
-            setPage(1)
-            setSearch(event.target.value)
-          }}
-          className="max-w-xs"
-        />
-        <Select
-          value={role}
-          onValueChange={(value) => {
-            setPage(1)
-            setRole(value as RoleFilter)
-          }}
-        >
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder="Role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All roles</SelectItem>
-            <SelectItem value="teacher">Teacher</SelectItem>
-            <SelectItem value="student">Student</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select
-          value={status}
-          onValueChange={(value) => {
-            setPage(1)
-            setStatus(value as StatusFilter)
-          }}
-        >
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b bg-muted/50 text-left text-muted-foreground">
-              <th className="p-3 font-medium">Name</th>
-              <th className="p-3 font-medium">Email</th>
-              <th className="p-3 font-medium">Role</th>
-              <th className="p-3 font-medium">Status</th>
-              <th className="p-3 font-medium">Joined</th>
-              <th className="p-3 font-medium text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={6} className="p-6 text-center text-muted-foreground">
-                  Loading users...
-                </td>
-              </tr>
-            ) : data?.users.length ? (
-              data.users.map((user) => (
-                <tr key={user.id} className="border-b last:border-0">
-                  <td className="p-3">{user.full_name}</td>
-                  <td className="p-3 text-muted-foreground">{user.email}</td>
-                  <td className="p-3">
-                    <Select
-                      value={user.role}
-                      onValueChange={(value) =>
-                        updateMutation.mutate({ id: user.id, payload: { role: value as UserRole } })
-                      }
-                    >
-                      <SelectTrigger size="sm" className="w-28">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="teacher">Teacher</SelectItem>
-                        <SelectItem value="student">Student</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="p-3">
-                    <Badge variant={user.is_active ? "success" : "destructive"}>
-                      {user.is_active ? "Active" : "Inactive"}
-                    </Badge>
-                  </td>
-                  <td className="p-3 text-muted-foreground">
-                    {new Date(user.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="p-3">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={updateMutation.isPending}
-                        onClick={() =>
-                          updateMutation.mutate({
-                            id: user.id,
-                            payload: { is_active: !user.is_active },
-                          })
-                        }
-                      >
-                        {user.is_active ? "Deactivate" : "Activate"}
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        disabled={deleteMutation.isPending}
-                        onClick={() => {
-                          if (window.confirm(`Delete ${user.full_name}? This cannot be undone.`)) {
-                            deleteMutation.mutate(user.id)
-                          }
-                        }}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={6} className="p-6 text-center text-muted-foreground">
-                  No users found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {data && data.total_pages > 1 && (
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>
-            Page {data.page} of {data.total_pages} ({data.total} users)
-          </span>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page <= 1}
-              onClick={() => setPage((prev) => prev - 1)}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page >= data.total_pages}
-              onClick={() => setPage((prev) => prev + 1)}
-            >
-              Next
-            </Button>
+    <Card className="px-1">
+      <CardHeader>
+        <div className="flex flex-wrap items-center gap-4">
+          <CardTitle className="mr-auto">Users</CardTitle>
+          <Input
+            placeholder="Search name or email"
+            value={search}
+            onChange={(event) => {
+              setPage(1)
+              setSearch(event.target.value)
+            }}
+            className="h-11 max-w-[280px] flex-[1_1_200px]"
+          />
+          <Select
+            value={status}
+            onValueChange={(value) => {
+              setPage(1)
+              setStatus(value as StatusFilter)
+            }}
+          >
+            <SelectTrigger className="w-36" aria-label="Filter by status">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+          {/* Sunken rail, one tab lifted — the same filter control as the exam list. */}
+          <div className="flex gap-1.5 rounded-2xl bg-background p-1.5 shadow-nm-inset">
+            {ROLE_FILTERS.map((filter) => (
+              <button
+                key={filter.value}
+                type="button"
+                aria-pressed={role === filter.value}
+                onClick={() => {
+                  setPage(1)
+                  setRole(filter.value)
+                }}
+                className={cn(
+                  "rounded-xl px-3.5 py-2 text-[13px] transition-all",
+                  role === filter.value ? "bg-background text-foreground shadow-nm-xs" : "text-nm-dim hover:text-foreground"
+                )}
+              >
+                {filter.label}
+              </button>
+            ))}
           </div>
         </div>
-      )}
-    </div>
+      </CardHeader>
+
+      <div className="px-6">
+        <div className="flex gap-4 px-5 pb-3.5 text-xs tracking-wider text-nm-faint uppercase">
+          <span className="min-w-[150px] flex-[2]">Name</span>
+          <span className="hidden min-w-[110px] flex-1 sm:block">Role</span>
+          <span className="hidden min-w-[100px] flex-1 md:block">Joined</span>
+          <span className="w-[110px] text-right">Status</span>
+          <span className="w-9" />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {isLoading ? (
+            <p className="px-5 py-6 text-sm text-muted-foreground">Loading users...</p>
+          ) : data?.users.length ? (
+            data.users.map((user) => (
+              <div
+                key={user.id}
+                className="flex flex-wrap items-center gap-4 rounded-[18px] bg-background px-5 py-4 shadow-nm"
+              >
+                <div className="flex min-w-[150px] flex-[2] items-center gap-3.5">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-background text-[12.5px] text-nm-accent-bright shadow-nm-inset-sm">
+                    {initials(user.full_name)}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="truncate text-[14.5px]">{user.full_name}</div>
+                    <div className="truncate text-[12.3px] text-nm-dim">{user.email}</div>
+                  </div>
+                </div>
+
+                <div className="hidden min-w-[110px] flex-1 sm:block">
+                  <Select
+                    value={user.role}
+                    onValueChange={(value) =>
+                      updateMutation.mutate({ id: user.id, payload: { role: value as UserRole } })
+                    }
+                  >
+                    <SelectTrigger
+                      size="sm"
+                      className={cn("w-28 border-0 bg-transparent shadow-none", ROLE_COLOR[user.role])}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="teacher">Teacher</SelectItem>
+                      <SelectItem value="student">Student</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <span className="hidden min-w-[100px] flex-1 text-[13.5px] text-nm-dim md:block">
+                  {new Date(user.created_at).toLocaleDateString()}
+                </span>
+
+                {/* Active is raised, disabled is pressed in — the state IS the depth. */}
+                <button
+                  type="button"
+                  disabled={updateMutation.isPending}
+                  onClick={() =>
+                    updateMutation.mutate({ id: user.id, payload: { is_active: !user.is_active } })
+                  }
+                  className={cn(
+                    "w-[110px] rounded-xl bg-background py-2.5 text-[12.5px] transition-all disabled:opacity-50",
+                    user.is_active ? "text-nm-success shadow-nm-xs" : "text-nm-dim shadow-nm-inset-sm"
+                  )}
+                >
+                  {user.is_active ? "Active" : "Disabled"}
+                </button>
+
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`Delete ${user.full_name}`}
+                  disabled={deleteMutation.isPending}
+                  onClick={() => {
+                    if (window.confirm(`Delete ${user.full_name}? This cannot be undone.`)) {
+                      deleteMutation.mutate(user.id)
+                    }
+                  }}
+                >
+                  <Trash2 className="size-4 text-destructive" />
+                </Button>
+              </div>
+            ))
+          ) : (
+            <p className="rounded-2xl bg-background px-5 py-6 text-sm text-muted-foreground shadow-nm-inset">
+              No users match that search.
+            </p>
+          )}
+        </div>
+
+        {data && data.total_pages > 1 && (
+          <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
+            <span>
+              Page {data.page} of {data.total_pages} ({data.total} users)
+            </span>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((prev) => prev - 1)}>
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= data.total_pages}
+                onClick={() => setPage((prev) => prev + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </Card>
   )
 }

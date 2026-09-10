@@ -7,8 +7,8 @@ import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+import { AuthLayout } from "@/components/auth/auth-layout"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PasswordInput } from "@/components/ui/password-input"
@@ -47,34 +47,47 @@ export function LoginForm() {
   })
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>Sign in</CardTitle>
-        <CardDescription>Enter your credentials to access your account.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit((values) => mutation.mutate(values))}>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" autoComplete="email" {...register("email")} />
-            {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="password">Password</Label>
-            <PasswordInput id="password" autoComplete="current-password" {...register("password")} />
-            {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
-          </div>
-          <Button type="submit" disabled={mutation.isPending} className="mt-2">
-            {mutation.isPending ? "Signing in..." : "Sign in"}
-          </Button>
-          <p className="text-center text-sm text-muted-foreground">
-            No account?{" "}
-            <Link href="/register" className="font-medium text-foreground underline underline-offset-4">
-              Register
-            </Link>
-          </p>
-        </form>
-      </CardContent>
-    </Card>
+    <AuthLayout showBackHome>
+      <h2 className="font-heading text-[25px] font-semibold tracking-tight">Sign in</h2>
+      <p className="mt-2 text-[14.5px] text-muted-foreground">Use the account your school set up for you.</p>
+
+      <form className="mt-7 flex flex-col" onSubmit={handleSubmit((values) => mutation.mutate(values))}>
+        <Label htmlFor="email" className="mb-2.5 text-[13px] font-normal text-[#93a6bd]">
+          Email
+        </Label>
+        <Input
+          id="email"
+          type="email"
+          autoComplete="email"
+          placeholder="you@school.edu"
+          aria-invalid={Boolean(errors.email)}
+          {...register("email")}
+        />
+        {errors.email && <p className="mt-2 text-[12.5px] text-destructive">{errors.email.message}</p>}
+
+        <Label htmlFor="password" className="mt-5 mb-2.5 text-[13px] font-normal text-[#93a6bd]">
+          Password
+        </Label>
+        <PasswordInput
+          id="password"
+          autoComplete="current-password"
+          placeholder="••••••••"
+          aria-invalid={Boolean(errors.password)}
+          {...register("password")}
+        />
+        {errors.password && <p className="mt-2 text-[12.5px] text-destructive">{errors.password.message}</p>}
+
+        <Button type="submit" size="lg" disabled={mutation.isPending} className="mt-7 w-full">
+          {mutation.isPending ? "Signing in..." : "Sign in"}
+        </Button>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        No account?{" "}
+        <Link href="/register" className="font-medium">
+          Create one
+        </Link>
+      </p>
+    </AuthLayout>
   )
 }

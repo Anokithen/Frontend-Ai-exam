@@ -21,7 +21,7 @@ function PasswordInput({ className, ...props }: Omit<React.ComponentProps<"input
       <Input
         type={visible ? "text" : "password"}
         // Room for the toggle, so a long password never runs underneath it.
-        className={cn("pr-8", className)}
+        className={cn("pr-14", className)}
         {...props}
       />
       <button
@@ -30,7 +30,7 @@ function PasswordInput({ className, ...props }: Omit<React.ComponentProps<"input
         // The label carries the state, so a screen reader hears which way the toggle goes.
         aria-label={visible ? "Hide password" : "Show password"}
         aria-pressed={visible}
-        className="absolute inset-y-0 right-0 flex w-8 items-center justify-center rounded-r-lg text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="absolute top-1/2 right-2.5 flex size-9 -translate-y-1/2 items-center justify-center rounded-xl bg-background text-muted-foreground shadow-nm-xs transition-all outline-none hover:text-foreground active:shadow-nm-inset-sm focus-visible:ring-2 focus-visible:ring-ring/70"
       >
         <Icon className="size-4" aria-hidden="true" />
       </button>
