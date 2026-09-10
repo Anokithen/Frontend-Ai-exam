@@ -1,19 +1,32 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
-import { FileText, Plus } from "lucide-react"
+import { FileText, Plus, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
+import { getApiErrorMessage } from "@/lib/api-client"
 import { examService } from "@/services/exam.service"
 
 export default function TeacherExamsPage() {
+  const queryClient = useQueryClient()
   const { data: exams, isLoading } = useQuery({
     queryKey: ["exams"],
     queryFn: examService.list,
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (examId: string) => examService.remove(examId),
+    onSuccess: () => {
+      toast.success("Draft deleted.")
+      queryClient.invalidateQueries({ queryKey: ["exams"] })
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+    },
+    onError: (error) => toast.error(getApiErrorMessage(error, "Failed to delete draft.")),
   })
 
   return (
@@ -35,14 +48,34 @@ export default function TeacherExamsPage() {
               <Link key={exam.id} href={`/teacher/exams/${exam.id}`}>
                 <Card className="h-full transition-colors hover:bg-muted/50">
                   <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <CardTitle className="flex items-center gap-2 text-base">
                         <FileText className="size-4 shrink-0 text-muted-foreground" />
                         {exam.title}
                       </CardTitle>
-                      <Badge variant={exam.status === "published" ? "success" : "secondary"}>
-                        {exam.status}
-                      </Badge>
+                      <div className="flex shrink-0 items-center gap-1">
+                        <Badge variant={exam.status === "published" ? "success" : "secondary"}>
+                          {exam.status}
+                        </Badge>
+                        {exam.status === "draft" && (
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label={`Delete draft "${exam.title}"`}
+                            disabled={deleteMutation.isPending}
+                            onClick={(event) => {
+                              // The whole card is a link, so the click must not navigate.
+                              event.preventDefault()
+                              event.stopPropagation()
+                              if (window.confirm(`Delete draft "${exam.title}"? This cannot be undone.`)) {
+                                deleteMutation.mutate(exam.id)
+                              }
+                            }}
+                          >
+                            <Trash2 className="size-4 text-destructive" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="text-sm text-muted-foreground">

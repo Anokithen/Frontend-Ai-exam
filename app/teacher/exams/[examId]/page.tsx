@@ -83,6 +83,18 @@ export default function ExamEditorPage() {
     onError: (error) => toast.error(getApiErrorMessage(error, "Failed to create room.")),
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: () => examService.remove(examId),
+    onSuccess: () => {
+      toast.success("Draft deleted.")
+      queryClient.removeQueries({ queryKey: ["exams", examId] })
+      queryClient.invalidateQueries({ queryKey: ["exams"] })
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+      router.push("/teacher/exams")
+    },
+    onError: (error) => toast.error(getApiErrorMessage(error, "Failed to delete draft.")),
+  })
+
   function updateQuestion(key: string, patch: Partial<QuestionInput>) {
     setQuestions((prev) => prev.map((q) => (q._key === key ? { ...q, ...patch } : q)))
   }
@@ -254,6 +266,21 @@ export default function ExamEditorPage() {
           {exam.status === "published" && (
             <Button variant="secondary" onClick={() => createRoomMutation.mutate()} disabled={createRoomMutation.isPending}>
               {createRoomMutation.isPending ? "Creating room..." : "Create exam room"}
+            </Button>
+          )}
+          {exam.status === "draft" && (
+            <Button
+              variant="ghost"
+              className="ml-auto text-destructive"
+              disabled={deleteMutation.isPending}
+              onClick={() => {
+                if (window.confirm(`Delete draft "${exam.title}"? This cannot be undone.`)) {
+                  deleteMutation.mutate()
+                }
+              }}
+            >
+              <Trash2 className="size-4" />
+              {deleteMutation.isPending ? "Deleting..." : "Delete draft"}
             </Button>
           )}
         </div>
