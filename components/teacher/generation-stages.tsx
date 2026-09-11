@@ -3,7 +3,23 @@
 import { Circle, CircleCheck, CircleX, LoaderCircle, Sparkles } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import type { GenerationStage } from "@/services/exam.service"
+import type { GenerationStage, QuestionProgress } from "@/services/exam.service"
+
+/** How much of a stage is done, 0-1: a running stage with a question count is partly done. */
+function stageFraction(stage: GenerationStage): number {
+  if (stage.status === "done") return 1
+  if (stage.status === "running" && stage.progress?.total) {
+    return Math.min(stage.progress.created / stage.progress.total, 0.99)
+  }
+  return 0
+}
+
+/** "Writing question 4 of 8 · 3 created" — what the model is on and how many are finished. */
+function describeProgress({ created, writing, total }: QuestionProgress): string {
+  const finished = `${created} of ${total} created`
+  if (writing !== null) return `Writing question ${writing} of ${total} · ${finished}`
+  return created === 0 ? "Starting to write..." : finished
+}
 
 /**
  * The generation panel. Each stage is a row that sits sunken until it is the one running, when
@@ -11,8 +27,8 @@ import type { GenerationStage } from "@/services/exam.service"
  */
 export function GenerationStages({ stages, isPending }: { stages: GenerationStage[] | null; isPending: boolean }) {
   const done = stages?.length ? stages.every((stage) => stage.status === "done") : false
-  const finished = stages?.filter((stage) => stage.status === "done").length ?? 0
-  const percent = stages?.length ? Math.round((finished / stages.length) * 100) : 0
+  const completed = stages?.reduce((sum, stage) => sum + stageFraction(stage), 0) ?? 0
+  const percent = stages?.length ? Math.round((completed / stages.length) * 100) : 0
 
   return (
     <div className="min-w-0 rounded-3xl bg-background p-7 shadow-nm-md">
@@ -57,20 +73,44 @@ export function GenerationStages({ stages, isPending }: { stages: GenerationStag
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="text-[14.5px] text-secondary-foreground">{stage.label}</div>
-                  {stage.detail && stage.status !== "pending" && (
-                    <div className="mt-1 text-[12.5px] text-[#7c8ea4]">{stage.detail}</div>
+                  {stage.status === "running" && stage.progress ? (
+                    <>
+                      <div
+                        className="mt-1 text-[12.5px] text-nm-accent-bright"
+                        aria-live="polite"
+                      >
+                        {describeProgress(stage.progress)}
+                      </div>
+                      <div className="mt-2 h-1.5 rounded-full bg-background shadow-nm-inset-sm">
+                        <div
+                          className="h-full rounded-full bg-primary shadow-[0_0_8px_var(--nm-accent)] transition-[width] duration-500 ease-out"
+                          style={{
+                            width: `${Math.round(stageFraction(stage) * 100)}%`,
+                          }}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    stage.detail &&
+                    stage.status !== "pending" && (
+                      <div className="mt-1 text-[12.5px] text-[#7c8ea4]">{stage.detail}</div>
+                    )
                   )}
                 </div>
                 <span
                   className={cn(
-                    "text-[11.5px] tracking-wider uppercase",
+                    "shrink-0 text-[11.5px] tracking-wider uppercase tabular-nums",
                     stage.status === "done" && "text-nm-success",
                     stage.status === "running" && "text-nm-accent-bright",
                     stage.status === "failed" && "text-destructive",
                     stage.status === "pending" && "text-[#6b7d92]"
                   )}
                 >
-                  {stage.status === "pending" ? "queued" : stage.status}
+                  {stage.status === "running" && stage.progress
+                    ? `${stage.progress.created}/${stage.progress.total}`
+                    : stage.status === "pending"
+                      ? "queued"
+                      : stage.status}
                 </span>
               </div>
             ))}

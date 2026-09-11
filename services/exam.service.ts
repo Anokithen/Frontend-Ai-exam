@@ -20,11 +20,22 @@ export interface QuestionInput {
 
 export type StageStatus = "pending" | "running" | "done" | "failed"
 
+/** How far through the requested questions the writing stage is. */
+export interface QuestionProgress {
+  /** Questions the model has finished writing. */
+  created: number
+  /** Number of the question being written right now; null between questions. */
+  writing: number | null
+  /** How many questions were asked for. */
+  total: number
+}
+
 export interface GenerationStage {
   id: string
   label: string
   status: StageStatus
   detail?: string
+  progress?: QuestionProgress
 }
 
 export interface GeneratePayload {
@@ -37,9 +48,10 @@ export interface GeneratePayload {
   texts?: Record<string, string>
 }
 
-type StreamEvent =
+export type StreamEvent =
   | { type: "stages"; stages: GenerationStage[] }
   | { type: "stage"; id: string; status: StageStatus; detail?: string }
+  | ({ type: "progress"; id: string } & QuestionProgress)
   | { type: "done"; exam: Exam }
   | { type: "error"; code: string; message: string }
 
