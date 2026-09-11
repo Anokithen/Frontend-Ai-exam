@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
+import { LoaderCircle, LogIn } from "lucide-react"
 import { toast } from "sonner"
 
 import { AuthLayout } from "@/components/auth/auth-layout"
@@ -78,6 +79,7 @@ export function LoginForm() {
         {errors.password && <p className="mt-2 text-[12.5px] text-destructive">{errors.password.message}</p>}
 
         <Button type="submit" size="lg" disabled={mutation.isPending} className="mt-7 w-full">
+          {mutation.isPending ? <LoaderCircle className="animate-spin" /> : <LogIn />}
           {mutation.isPending ? "Signing in..." : "Sign in"}
         </Button>
       </form>

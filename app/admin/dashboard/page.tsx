@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import { GraduationCap, Presentation, ShieldCheck, UserCheck, Users } from "lucide-react"
 
 import { AdminUserTable } from "@/components/dashboard/admin-user-table"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
@@ -36,11 +37,11 @@ export default function AdminDashboardPage() {
       ) : (
         <>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-5">
-            <StatCard label="Total users" value={data?.total_users ?? 0} />
-            <StatCard label="Teachers" value={data?.total_teachers ?? 0} />
-            <StatCard label="Students" value={data?.total_students ?? 0} />
-            <StatCard label="Admins" value={data?.total_admins ?? 0} />
-            <StatCard label="Active" value={data?.active_users ?? 0} />
+            <StatCard label="Total users" value={data?.total_users ?? 0} icon={Users} />
+            <StatCard label="Teachers" value={data?.total_teachers ?? 0} icon={Presentation} />
+            <StatCard label="Students" value={data?.total_students ?? 0} icon={GraduationCap} />
+            <StatCard label="Admins" value={data?.total_admins ?? 0} icon={ShieldCheck} />
+            <StatCard label="Active" value={data?.active_users ?? 0} icon={UserCheck} />
           </div>
           <div className="mt-8">
             <AdminUserTable />

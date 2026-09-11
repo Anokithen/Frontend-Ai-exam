@@ -2,6 +2,15 @@
 
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
+import {
+  CalendarClock,
+  ChevronRight,
+  CircleCheck,
+  FileText,
+  KeyRound,
+  Play,
+  Trophy,
+} from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,9 +25,12 @@ function RoomRow({ room, action }: { room: StudentDashboardRoom; action: string 
   return (
     <Link
       href={`/student/rooms/${room.id}/${action}`}
-      className="flex items-center justify-between gap-4 rounded-[18px] bg-background px-5 py-4 text-sm text-foreground shadow-nm transition-shadow hover:text-foreground hover:shadow-nm-inset"
+      className="flex items-center gap-4 rounded-[18px] bg-background px-5 py-4 text-sm text-foreground shadow-nm transition-shadow hover:text-foreground hover:shadow-nm-inset"
     >
-      <span>{room.exam?.title ?? room.exam_title}</span>
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-background text-nm-dim shadow-nm-inset-sm">
+        {action === "result" ? <CircleCheck className="size-4" /> : <FileText className="size-4" />}
+      </span>
+      <span className="min-w-0 flex-1 truncate">{room.exam?.title ?? room.exam_title}</span>
       {room.submission ? (
         <Badge variant={room.submission.status === "graded" ? "success" : "secondary"}>
           {room.submission.status === "graded"
@@ -28,6 +40,7 @@ function RoomRow({ room, action }: { room: StudentDashboardRoom; action: string 
       ) : (
         <Badge variant="outline">Not started</Badge>
       )}
+      <ChevronRight className="size-4 shrink-0 text-nm-dim" />
     </Link>
   )
 }
@@ -47,7 +60,10 @@ export default function StudentDashboardPage() {
         title="Your exams"
         description="Join with a code from your teacher, then sit the paper here."
         action={
-          <Button render={<Link href="/student/rooms/join" />}>Join with a code</Button>
+          <Button render={<Link href="/student/rooms/join" />}>
+            <KeyRound />
+            Join with a code
+          </Button>
         }
       />
 
@@ -56,10 +72,14 @@ export default function StudentDashboardPage() {
       ) : (
         <div className="flex flex-col gap-8">
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(210px,100%),1fr))] gap-5">
-            <StatCard label="Upcoming exams" value={data?.upcoming_exams.length ?? 0} />
-            <StatCard label="Active exams" value={data?.active_exams.length ?? 0} />
-            <StatCard label="Completed exams" value={data?.completed_exams.length ?? 0} />
-            <StatCard label="Average score" value={data?.average_percentage != null ? `${data.average_percentage}%` : "—"} />
+            <StatCard label="Upcoming exams" value={data?.upcoming_exams.length ?? 0} icon={CalendarClock} />
+            <StatCard label="Active exams" value={data?.active_exams.length ?? 0} icon={Play} />
+            <StatCard label="Completed exams" value={data?.completed_exams.length ?? 0} icon={CircleCheck} />
+            <StatCard
+              label="Average score"
+              value={data?.average_percentage != null ? `${data.average_percentage}%` : "—"}
+              icon={Trophy}
+            />
           </div>
 
           <Card>
@@ -68,9 +88,10 @@ export default function StudentDashboardPage() {
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               {!hasAny ? (
-                <p className="rounded-2xl bg-background px-6 py-8 text-center text-sm text-muted-foreground shadow-nm-inset">
-                  No exams yet. Join an exam with an invite code from your teacher.
-                </p>
+                <div className="flex flex-col items-center gap-3 rounded-2xl bg-background px-6 py-8 text-center text-sm text-muted-foreground shadow-nm-inset">
+                  <KeyRound className="size-6 text-nm-dim" />
+                  <p>No exams yet. Join an exam with an invite code from your teacher.</p>
+                </div>
               ) : (
                 <>
                   {data?.active_exams.map((room) => <RoomRow key={room.id} room={room} action="take" />)}

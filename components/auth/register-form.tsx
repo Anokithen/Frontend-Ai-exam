@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
+import { GraduationCap, LoaderCircle, Presentation, UserPlus } from "lucide-react"
 import { toast } from "sonner"
 
 import { AuthLayout } from "@/components/auth/auth-layout"
@@ -19,8 +20,8 @@ import { type RegisterValues, registerSchema } from "@/schemas/auth.schema"
 import { authService } from "@/services/auth.service"
 
 const ROLES = [
-  { key: "teacher", label: "Teacher" },
-  { key: "student", label: "Student" },
+  { key: "teacher", label: "Teacher", icon: Presentation },
+  { key: "student", label: "Student", icon: GraduationCap },
 ] as const
 
 /** Four independent things worth doing to a password, one bar each. */
@@ -94,10 +95,10 @@ export function RegisterForm() {
                   selected ? "text-foreground shadow-nm-inset" : "text-[#93a6bd] shadow-nm-sm"
                 )}
               >
-                <span
+                <option.icon
                   className={cn(
-                    "size-2.5 rounded-full",
-                    selected ? "bg-primary shadow-[0_0_12px_rgb(77_141_255_/_0.7)]" : "bg-[#33465a]"
+                    "size-5 shrink-0",
+                    selected ? "text-primary drop-shadow-[0_0_10px_rgb(77_141_255_/_0.7)]" : "text-[#33465a]"
                   )}
                 />
                 {option.label}
@@ -172,6 +173,7 @@ export function RegisterForm() {
         )}
 
         <Button type="submit" size="lg" disabled={mutation.isPending} className="mt-7 w-full">
+          {mutation.isPending ? <LoaderCircle className="animate-spin" /> : <UserPlus />}
           {mutation.isPending ? "Creating account..." : "Create account"}
         </Button>
       </form>

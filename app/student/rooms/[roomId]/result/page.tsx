@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
+import { CircleCheck, Clock, MessageSquare, Trophy } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -35,12 +36,16 @@ export default function ExamResultPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <CardTitle>{exam.title}</CardTitle>
               <Badge variant={submission.status === "graded" ? "success" : "secondary"}>
+                {submission.status === "graded" ? <CircleCheck /> : <Clock />}
                 {submission.status === "graded" ? "Fully graded" : "Awaiting grading"}
               </Badge>
             </div>
           </CardHeader>
           <CardContent>
-            <p className="font-heading text-[38px] font-semibold tracking-tight text-nm-accent-bright">
+            <p className="flex items-center gap-4 font-heading text-[38px] font-semibold tracking-tight text-nm-accent-bright">
+              <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-background shadow-nm-inset-sm">
+                <Trophy className="size-5" />
+              </span>
               {submission.total_score ?? 0} / {submission.max_score}
             </p>
             {submission.status !== "graded" && (
@@ -57,13 +62,19 @@ export default function ExamResultPage() {
               <CardTitle className="text-base">{answer.question_prompt}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-3 text-sm">
-              <p className="text-muted-foreground">
+              <p className="flex items-center gap-2 text-muted-foreground">
+                {answer.score != null ? (
+                  <CircleCheck className="size-4 text-nm-success" />
+                ) : (
+                  <Clock className="size-4 text-nm-warning" />
+                )}
                 Score: {answer.score ?? "pending"} / {answer.marks}
               </p>
               {answer.feedback && (
-                <p className="rounded-2xl bg-background px-5 py-4 leading-relaxed text-secondary-foreground shadow-nm-inset">
-                  {answer.feedback}
-                </p>
+                <div className="flex gap-3 rounded-2xl bg-background px-5 py-4 leading-relaxed text-secondary-foreground shadow-nm-inset">
+                  <MessageSquare className="mt-0.5 size-4 shrink-0 text-nm-dim" />
+                  <p>{answer.feedback}</p>
+                </div>
               )}
             </CardContent>
           </Card>

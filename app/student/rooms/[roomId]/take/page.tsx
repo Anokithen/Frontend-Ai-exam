@@ -3,6 +3,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
+import {
+  ChevronLeft,
+  ChevronRight,
+  CircleCheck,
+  Flag,
+  LoaderCircle,
+  Send,
+  Timer,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import { LogoMark } from "@/components/dashboard/logo-mark"
@@ -123,7 +132,10 @@ export default function TakeExamPage() {
   if (!exam) {
     return (
       <div className="grid min-h-svh place-items-center bg-background text-sm text-muted-foreground">
-        Loading exam...
+        <span className="flex items-center gap-2.5">
+          <LoaderCircle className="size-4 animate-spin" />
+          Loading exam...
+        </span>
       </div>
     )
   }
@@ -152,6 +164,12 @@ export default function TakeExamPage() {
             </div>
           </div>
           <div className="flex items-center gap-3 rounded-2xl bg-background px-5 py-2.5 shadow-nm-inset">
+            <Timer
+              className={cn(
+                "size-4",
+                remaining !== null && remaining < 300 ? "animate-pulse text-[#ff9f8f]" : "text-nm-dim"
+              )}
+            />
             <span className="text-[12.5px] text-nm-dim">Time left</span>
             <span
               className={cn(
@@ -253,6 +271,7 @@ export default function TakeExamPage() {
                   disabled={index === 0}
                   onClick={() => setIndex((current) => Math.max(0, current - 1))}
                 >
+                  <ChevronLeft />
                   Previous
                 </Button>
                 <Button
@@ -262,6 +281,7 @@ export default function TakeExamPage() {
                   className={cn(flags[question.id] && "text-[#f2c46a] shadow-nm-inset")}
                   onClick={() => setFlags((prev) => ({ ...prev, [question.id]: !prev[question.id] }))}
                 >
+                  <Flag className={cn(flags[question.id] && "fill-current")} />
                   {flags[question.id] ? "Flagged" : "Flag for review"}
                 </Button>
                 <Button
@@ -271,6 +291,7 @@ export default function TakeExamPage() {
                   onClick={() => setIndex((current) => Math.min(questions.length - 1, current + 1))}
                 >
                   {index >= questions.length - 1 ? "Last question" : "Next question"}
+                  <ChevronRight />
                 </Button>
               </div>
             </div>
@@ -313,11 +334,15 @@ export default function TakeExamPage() {
             })}
           </div>
 
-          <div className="mt-5 text-[12.5px] leading-loose text-nm-dim">
-            <div>
+          <div className="mt-5 flex flex-col gap-1.5 text-[12.5px] text-nm-dim">
+            <div className="flex items-center gap-2">
+              <CircleCheck className="size-3.5 text-nm-success" />
               {answered} of {questions.length} answered
             </div>
-            <div>{flaggedCount} flagged for review</div>
+            <div className="flex items-center gap-2">
+              <Flag className="size-3.5 text-[#f2c46a]" />
+              {flaggedCount} flagged for review
+            </div>
           </div>
 
           <Button
@@ -330,6 +355,7 @@ export default function TakeExamPage() {
             }}
             disabled={submitMutation.isPending}
           >
+            {submitMutation.isPending ? <LoaderCircle className="animate-spin" /> : <Send />}
             {submitMutation.isPending ? "Submitting..." : "Submit exam"}
           </Button>
         </aside>

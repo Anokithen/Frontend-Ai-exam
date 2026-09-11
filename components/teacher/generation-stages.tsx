@@ -1,5 +1,7 @@
 "use client"
 
+import { Circle, CircleCheck, CircleX, LoaderCircle, Sparkles } from "lucide-react"
+
 import { cn } from "@/lib/utils"
 import type { GenerationStage } from "@/services/exam.service"
 
@@ -18,10 +20,17 @@ export function GenerationStages({ stages, isPending }: { stages: GenerationStag
         <h3 className="mr-auto font-heading text-[19px] font-semibold">Generation</h3>
         <span
           className={cn(
-            "rounded-full bg-background px-3.5 py-1.5 text-xs shadow-nm-inset-sm",
+            "flex items-center gap-1.5 rounded-full bg-background px-3.5 py-1.5 text-xs shadow-nm-inset-sm",
             done ? "text-nm-success" : isPending ? "text-nm-accent-bright" : "text-nm-dim"
           )}
         >
+          {done ? (
+            <CircleCheck className="size-3.5" />
+          ) : isPending ? (
+            <LoaderCircle className="size-3.5 animate-spin" />
+          ) : (
+            <Sparkles className="size-3.5" />
+          )}
           {done ? "Ready to review" : isPending ? "Running" : "Idle"}
         </span>
       </div>
@@ -37,15 +46,15 @@ export function GenerationStages({ stages, isPending }: { stages: GenerationStag
                   stage.status === "running" ? "shadow-nm" : "shadow-nm-inset-sm"
                 )}
               >
-                <span
-                  className={cn(
-                    "size-2.5 shrink-0 rounded-full",
-                    stage.status === "done" && "bg-nm-success shadow-[0_0_12px_var(--nm-success)]",
-                    stage.status === "running" && "animate-pulse bg-primary shadow-[0_0_12px_var(--nm-accent)]",
-                    stage.status === "failed" && "bg-destructive shadow-[0_0_12px_var(--nm-danger)]",
-                    stage.status === "pending" && "bg-[#3b4b5e]"
-                  )}
-                />
+                {stage.status === "done" ? (
+                  <CircleCheck className="size-4 shrink-0 text-nm-success drop-shadow-[0_0_8px_var(--nm-success)]" />
+                ) : stage.status === "running" ? (
+                  <LoaderCircle className="size-4 shrink-0 animate-spin text-primary drop-shadow-[0_0_8px_var(--nm-accent)]" />
+                ) : stage.status === "failed" ? (
+                  <CircleX className="size-4 shrink-0 text-destructive drop-shadow-[0_0_8px_var(--nm-danger)]" />
+                ) : (
+                  <Circle className="size-4 shrink-0 text-[#3b4b5e]" />
+                )}
                 <div className="min-w-0 flex-1">
                   <div className="text-[14.5px] text-secondary-foreground">{stage.label}</div>
                   {stage.detail && stage.status !== "pending" && (
@@ -78,10 +87,13 @@ export function GenerationStages({ stages, isPending }: { stages: GenerationStag
           </div>
         </>
       ) : (
-        <p className="rounded-2xl bg-background px-5 py-8 text-center text-sm text-muted-foreground shadow-nm-inset">
-          Pick a material and a question mix, then generate — each step shows up here as the
-          server finishes it.
-        </p>
+        <div className="flex flex-col items-center gap-3 rounded-2xl bg-background px-5 py-8 text-center text-sm text-muted-foreground shadow-nm-inset">
+          <Sparkles className="size-6 text-nm-dim" />
+          <p>
+            Pick a material and a question mix, then generate — each step shows up here as the
+            server finishes it.
+          </p>
+        </div>
       )}
     </div>
   )

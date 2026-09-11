@@ -1,6 +1,6 @@
 "use client"
 
-import { FileText } from "lucide-react"
+import { LoaderCircle, RefreshCw, Save, ScanText } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
 
 export interface ExtractedFile {
   id: string
@@ -51,7 +52,7 @@ export function ExtractedTextDialog({
       <DialogTrigger
         render={<Button type="button" variant="outline" className="w-full justify-start" />}
       >
-        <FileText className="size-4" />
+        {isLoading ? <LoaderCircle className="size-4 animate-spin" /> : <ScanText className="size-4" />}
         {isLoading ? "Loading text..." : "View / edit extracted text"}
         <span className="ml-auto text-xs text-muted-foreground">
           {isLoading ? "" : `${totalCharacters.toLocaleString()} characters`}
@@ -94,6 +95,7 @@ export function ExtractedTextDialog({
                     disabled={isSaving || !(texts[file.id] ?? "").trim()}
                     onClick={() => onSave(file.id)}
                   >
+                    <Save />
                     Save text
                   </Button>
                   <Button
@@ -103,6 +105,7 @@ export function ExtractedTextDialog({
                     disabled={isRereading}
                     onClick={() => onReread(file.id)}
                   >
+                    <RefreshCw className={cn(isRereading && "animate-spin")} />
                     {isRereading ? "Reading..." : "Read file again"}
                   </Button>
                 </div>

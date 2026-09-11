@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
-import { Plus } from "lucide-react"
+import { ArrowRight, ChevronRight, ClipboardCheck, FileText, Plus, Radio, Sparkles, Users } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -52,10 +52,16 @@ export default function TeacherDashboardPage() {
       />
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(210px,100%),1fr))] gap-5">
-        <StatCard label="Exams created" value={data?.total_exams ?? 0} />
-        <StatCard label="Students reached" value={data?.total_students ?? 0} />
-        <StatCard label="Running now" value={active} delta={active ? "live rooms open" : undefined} up={active > 0} />
-        <StatCard label="Awaiting grading" value={pending} />
+        <StatCard label="Exams created" value={data?.total_exams ?? 0} icon={FileText} />
+        <StatCard label="Students reached" value={data?.total_students ?? 0} icon={Users} />
+        <StatCard
+          label="Running now"
+          value={active}
+          delta={active ? "live rooms open" : undefined}
+          up={active > 0}
+          icon={Radio}
+        />
+        <StatCard label="Awaiting grading" value={pending} icon={ClipboardCheck} />
       </div>
 
       <Card className="mt-8">
@@ -64,6 +70,7 @@ export default function TeacherDashboardPage() {
             <CardTitle className="mr-auto">Recent exams</CardTitle>
             <Button variant="outline" size="sm" render={<Link href="/teacher/exams" />}>
               View all
+              <ArrowRight />
             </Button>
           </div>
         </CardHeader>
@@ -77,6 +84,9 @@ export default function TeacherDashboardPage() {
                 href={`/teacher/exams/${exam.id}`}
                 className="flex flex-wrap items-center gap-4 rounded-[18px] bg-background px-5 py-4 text-foreground shadow-nm transition-shadow hover:shadow-nm-inset hover:text-foreground"
               >
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-background text-nm-dim shadow-nm-inset-sm">
+                  <FileText className="size-4" />
+                </span>
                 <div className="min-w-[180px] flex-1">
                   <div className="text-[15px] font-medium">{exam.title}</div>
                   <div className="mt-1 text-[12.8px] text-nm-dim">
@@ -85,12 +95,14 @@ export default function TeacherDashboardPage() {
                   </div>
                 </div>
                 <Badge variant={exam.status === "published" ? "success" : "secondary"}>{exam.status}</Badge>
+                <ChevronRight className="size-4 shrink-0 text-nm-dim" />
               </Link>
             ))
           ) : (
-            <p className="rounded-2xl bg-background px-6 py-8 text-center text-sm text-muted-foreground shadow-nm-inset">
-              Upload a material in Materials, then generate your first exam with AI.
-            </p>
+            <div className="flex flex-col items-center gap-3 rounded-2xl bg-background px-6 py-8 text-center text-sm text-muted-foreground shadow-nm-inset">
+              <Sparkles className="size-6 text-nm-dim" />
+              <p>Upload a material in Materials, then generate your first exam with AI.</p>
+            </div>
           )}
         </div>
       </Card>

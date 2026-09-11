@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Circle, CircleCheck, LoaderCircle, Sparkles } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -34,7 +35,12 @@ export function GenerationPreview() {
           <div className="font-heading text-base font-semibold">Photosynthesis · Grade 10</div>
           <div className="mt-1 text-[13px] text-nm-dim">20 questions · 45 min · English</div>
         </div>
-        <div className="rounded-full bg-background px-3.5 py-1.5 text-xs text-[#93a6bd] shadow-nm-inset-sm">
+        <div className="flex items-center gap-1.5 rounded-full bg-background px-3.5 py-1.5 text-xs text-[#93a6bd] shadow-nm-inset-sm">
+          {tick >= STAGES.length ? (
+            <CircleCheck className="size-3.5 text-nm-success" />
+          ) : (
+            <Sparkles className="size-3.5 animate-pulse text-primary" />
+          )}
           {tick >= STAGES.length ? "Ready to publish" : "Generating"}
         </div>
       </div>
@@ -47,14 +53,13 @@ export function GenerationPreview() {
               key={label}
               className="flex items-center gap-3.5 rounded-2xl bg-background px-4 py-3.5 shadow-nm-inset-sm"
             >
-              <span
-                className={cn(
-                  "size-2.5 shrink-0 rounded-full",
-                  status === "done" && "bg-nm-success shadow-[0_0_12px_var(--nm-success)]",
-                  status === "running" && "animate-pulse bg-primary shadow-[0_0_12px_var(--nm-accent)]",
-                  status === "pending" && "bg-[#3b4b5e]"
-                )}
-              />
+              {status === "done" ? (
+                <CircleCheck className="size-4 shrink-0 text-nm-success drop-shadow-[0_0_8px_var(--nm-success)]" />
+              ) : status === "running" ? (
+                <LoaderCircle className="size-4 shrink-0 animate-spin text-primary drop-shadow-[0_0_8px_var(--nm-accent)]" />
+              ) : (
+                <Circle className="size-4 shrink-0 text-[#3b4b5e]" />
+              )}
               <span className="flex-1 text-[14.5px] text-secondary-foreground">{label}</span>
               <span
                 className={cn(

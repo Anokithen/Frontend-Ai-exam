@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { Minus, Plus } from "lucide-react"
+import { Circle, CircleCheck, FolderOpen, ImageIcon, LoaderCircle, Minus, Plus, Sparkles } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -202,12 +202,11 @@ export default function NewExamPage() {
                         selected ? "text-foreground shadow-nm-inset" : "text-[#93a6bd] shadow-nm-sm"
                       )}
                     >
-                      <span
-                        className={cn(
-                          "size-2.5 shrink-0 rounded-full",
-                          selected ? "bg-primary shadow-[0_0_12px_rgb(77_141_255_/_0.7)]" : "bg-[#33465a]"
-                        )}
-                      />
+                      {selected ? (
+                        <CircleCheck className="size-4 shrink-0 text-primary drop-shadow-[0_0_10px_rgb(77_141_255_/_0.7)]" />
+                      ) : (
+                        <Circle className="size-4 shrink-0 text-[#33465a]" />
+                      )}
                       <span className="flex-1 truncate text-left">{groupTitle}</span>
                       <span className="text-[12.5px] text-nm-dim">
                         {count > 1 ? `${count} files` : "1 file"}
@@ -217,9 +216,10 @@ export default function NewExamPage() {
                 })}
               </div>
             ) : (
-              <p className="rounded-2xl bg-background px-5 py-6 text-sm text-muted-foreground shadow-nm-inset">
-                Upload a PDF or image material first — Materials is in the nav above.
-              </p>
+              <div className="flex flex-col items-center gap-3 rounded-2xl bg-background px-5 py-6 text-center text-sm text-muted-foreground shadow-nm-inset">
+                <FolderOpen className="size-6 text-nm-dim" />
+                <p>Upload a PDF or image material first — Materials is in the nav above.</p>
+              </div>
             )}
 
             {unreadGroup.length > 0 && (
@@ -231,8 +231,9 @@ export default function NewExamPage() {
                 </p>
                 <ul className="mt-3 flex flex-col gap-1">
                   {unreadGroup.map((item) => (
-                    <li key={item.id} className="truncate text-[13px] text-nm-dim">
-                      {item.original_filename}
+                    <li key={item.id} className="flex items-center gap-2 truncate text-[13px] text-nm-dim">
+                      <ImageIcon className="size-3.5 shrink-0" />
+                      <span className="truncate">{item.original_filename}</span>
                     </li>
                   ))}
                 </ul>
@@ -369,6 +370,7 @@ export default function NewExamPage() {
             </div>
 
             <Button type="submit" size="lg" className="mt-5 w-full" disabled={generateMutation.isPending}>
+              {generateMutation.isPending ? <LoaderCircle className="animate-spin" /> : <Sparkles />}
               {generateMutation.isPending ? "Generating..." : "Generate exam"}
             </Button>
             {generateMutation.isPending && progress && (

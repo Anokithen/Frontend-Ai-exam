@@ -4,7 +4,21 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { Download, Plus, Trash2, X } from "lucide-react"
+import {
+  Circle,
+  CircleCheck,
+  Clock,
+  DoorOpen,
+  Download,
+  KeyRound,
+  LoaderCircle,
+  Plus,
+  Save,
+  Send,
+  Trash2,
+  Users,
+  X,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -166,11 +180,13 @@ export default function ExamEditorPage() {
         </Button>
         {exam.status === "draft" && (
           <Button onClick={() => publishMutation.mutate()} disabled={publishMutation.isPending}>
+            {publishMutation.isPending ? <LoaderCircle className="animate-spin" /> : <Send />}
             {publishMutation.isPending ? "Publishing..." : "Publish exam"}
           </Button>
         )}
         {exam.status === "published" && (
           <Button onClick={() => createRoomMutation.mutate()} disabled={createRoomMutation.isPending}>
+            {createRoomMutation.isPending ? <LoaderCircle className="animate-spin" /> : <DoorOpen />}
             {createRoomMutation.isPending ? "Creating room..." : "Create exam room"}
           </Button>
         )}
@@ -244,11 +260,14 @@ export default function ExamEditorPage() {
                           aria-checked={correct}
                           aria-label={`Mark option ${optIndex + 1} correct`}
                           onClick={() => updateQuestion(question._key, { correct_option_index: optIndex })}
-                          className={cn(
-                            "size-2.5 shrink-0 rounded-full",
-                            correct ? "bg-nm-success shadow-[0_0_12px_rgb(77_216_160_/_0.75)]" : "bg-[#33465a]"
+                          className="shrink-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring/70"
+                        >
+                          {correct ? (
+                            <CircleCheck className="size-4 text-nm-success drop-shadow-[0_0_10px_rgb(77_216_160_/_0.75)]" />
+                          ) : (
+                            <Circle className="size-4 text-[#33465a]" />
                           )}
-                        />
+                        </button>
                         <Input
                           value={option}
                           aria-label={`Option ${optIndex + 1}`}
@@ -330,7 +349,8 @@ export default function ExamEditorPage() {
                 </div>
               ))}
               <div className="flex items-center justify-between rounded-2xl bg-background px-4 py-3.5 shadow-nm-inset-sm">
-                <Label htmlFor="exam-time-limit" className="text-[13.5px] font-normal text-[#93a6bd]">
+                <Label htmlFor="exam-time-limit" className="flex items-center gap-2 text-[13.5px] font-normal text-[#93a6bd]">
+                  <Clock className="size-3.5" />
                   Time limit (min)
                 </Label>
                 <Input
@@ -360,6 +380,7 @@ export default function ExamEditorPage() {
               onClick={() => saveMutation.mutate()}
               disabled={saveMutation.isPending}
             >
+              {saveMutation.isPending ? <LoaderCircle className="animate-spin" /> : <Save />}
               {saveMutation.isPending ? "Saving..." : "Save changes"}
             </Button>
             {exam.status === "draft" && (
@@ -392,12 +413,15 @@ export default function ExamEditorPage() {
                     href={`/teacher/rooms/${room.id}`}
                     className="flex items-center justify-between gap-3 rounded-2xl bg-background px-4 py-3.5 text-sm text-foreground shadow-nm-sm transition-shadow hover:text-foreground hover:shadow-nm-inset"
                   >
-                    <span>
-                      Code{" "}
+                    <span className="flex items-center gap-2">
+                      <KeyRound className="size-4 shrink-0 text-nm-dim" />
                       <strong className="font-heading tracking-[0.12em] text-nm-accent-bright">
                         {room.invite_code}
-                      </strong>{" "}
-                      · {room.participant_count} joined
+                      </strong>
+                      <span className="flex items-center gap-1 text-nm-dim">
+                        <Users className="size-3.5" />
+                        {room.participant_count}
+                      </span>
                     </span>
                     <Badge variant={room.status === "open" ? "success" : "secondary"}>{room.status}</Badge>
                   </Link>

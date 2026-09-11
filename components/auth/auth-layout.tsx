@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
 
 import { LogoMark } from "@/components/dashboard/logo-mark"
 
@@ -19,8 +20,9 @@ export function AuthLayout({ children, showBackHome = false }: { children: React
 
         {showBackHome && (
           <div className="mt-6 text-center text-[13px]">
-            <Link href="/" className="text-nm-faint hover:text-nm-accent-soft">
-              ← Back to home
+            <Link href="/" className="inline-flex items-center gap-1.5 text-nm-faint hover:text-nm-accent-soft">
+              <ArrowLeft className="size-3.5" />
+              Back to home
             </Link>
           </div>
         )}

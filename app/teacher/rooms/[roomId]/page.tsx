@@ -4,6 +4,18 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useState } from "react"
+import {
+  Check,
+  Circle,
+  CircleCheck,
+  ClipboardCheck,
+  Copy,
+  DoorClosed,
+  LoaderCircle,
+  PenLine,
+  Radio,
+  Users,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -81,9 +93,11 @@ export default function RoomDetailPage() {
             </div>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Button variant="outline" onClick={copyCode}>
-                {copied ? "Copied ✓" : "Copy code"}
+                {copied ? <Check className="text-nm-success" /> : <Copy />}
+                {copied ? "Copied" : "Copy code"}
               </Button>
               <Button variant="outline" render={<Link href={`/teacher/rooms/${roomId}/grade`} />}>
+                <ClipboardCheck />
                 Grading
               </Button>
             </div>
@@ -119,6 +133,7 @@ export default function RoomDetailPage() {
                   onClick={() => closeMutation.mutate()}
                   disabled={closeMutation.isPending}
                 >
+                  {closeMutation.isPending ? <LoaderCircle className="animate-spin" /> : <DoorClosed />}
                   {closeMutation.isPending ? "Closing..." : "Close room"}
                 </Button>
               )}
@@ -131,15 +146,17 @@ export default function RoomDetailPage() {
             <div className="flex flex-wrap items-center gap-3.5">
               <CardTitle className="mr-auto">Participants</CardTitle>
               <Badge variant={room.status === "open" ? "success" : "outline"}>
+                {room.status === "open" ? <Radio /> : <DoorClosed />}
                 {room.status === "open" ? "Room open" : "Room closed"}
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             {participants.length === 0 ? (
-              <p className="rounded-2xl bg-background px-5 py-8 text-center text-sm text-muted-foreground shadow-nm-inset">
-                No one has joined yet. Read out the code above.
-              </p>
+              <div className="flex flex-col items-center gap-3 rounded-2xl bg-background px-5 py-8 text-center text-sm text-muted-foreground shadow-nm-inset">
+                <Users className="size-6 text-nm-dim" />
+                <p>No one has joined yet. Read out the code above.</p>
+              </div>
             ) : (
               participants.map((participant, index) => {
                 const submission = participant.submission
@@ -164,10 +181,19 @@ export default function RoomDetailPage() {
                     )}
                     <span
                       className={cn(
-                        "min-w-[78px] text-right text-[11.5px] tracking-wide uppercase",
+                        "inline-flex min-w-[78px] items-center justify-end gap-1.5 text-right text-[11.5px] tracking-wide uppercase",
                         done ? "text-nm-success" : room.status === "open" ? "text-nm-accent-bright" : "text-nm-dim"
                       )}
                     >
+                      {submission ? (
+                        done ? (
+                          <CircleCheck className="size-3.5" />
+                        ) : (
+                          <PenLine className="size-3.5" />
+                        )
+                      ) : (
+                        <Circle className="size-3.5" />
+                      )}
                       {submission ? (done ? "Submitted" : "Writing") : "Not started"}
                     </span>
                   </div>

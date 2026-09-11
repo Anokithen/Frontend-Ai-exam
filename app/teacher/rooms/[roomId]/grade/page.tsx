@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import { useState } from "react"
+import { ArrowRight, Check, CircleCheck, Clock, Inbox, LoaderCircle, MousePointerClick, Save, X } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -99,6 +100,7 @@ function AnswerGrader({
       />
 
       <Button className="mt-4" onClick={() => gradeMutation.mutate()} disabled={gradeMutation.isPending}>
+        {gradeMutation.isPending ? <LoaderCircle className="animate-spin" /> : <Save />}
         {gradeMutation.isPending ? "Saving..." : "Save grade"}
       </Button>
     </div>
@@ -176,21 +178,19 @@ export default function GradeRoomPage() {
                         {item.total_score ?? 0} / {item.max_score}
                       </span>
                     </span>
-                    <span
-                      className={cn(
-                        "size-2.5 shrink-0 rounded-full",
-                        item.status === "graded"
-                          ? "bg-nm-success shadow-[0_0_10px_rgb(77_216_160_/_0.7)]"
-                          : "bg-nm-warning shadow-[0_0_10px_rgb(192_163_106_/_0.6)]"
-                      )}
-                    />
+                    {item.status === "graded" ? (
+                      <CircleCheck className="size-4 shrink-0 text-nm-success drop-shadow-[0_0_8px_rgb(77_216_160_/_0.7)]" />
+                    ) : (
+                      <Clock className="size-4 shrink-0 text-nm-warning drop-shadow-[0_0_8px_rgb(192_163_106_/_0.6)]" />
+                    )}
                   </button>
                 )
               })
             ) : (
-              <p className="rounded-2xl bg-background px-4 py-6 text-sm text-muted-foreground shadow-nm-inset">
-                No submissions yet.
-              </p>
+              <div className="flex flex-col items-center gap-3 rounded-2xl bg-background px-4 py-6 text-center text-sm text-muted-foreground shadow-nm-inset">
+                <Inbox className="size-6 text-nm-dim" />
+                <p>No submissions yet.</p>
+              </div>
             )}
           </div>
         </aside>
@@ -248,10 +248,11 @@ export default function GradeRoomPage() {
                   {answer.question_type === "mcq" ? (
                     <div
                       className={cn(
-                        "mt-4 text-[13px]",
+                        "mt-4 flex items-center gap-2 text-[13px]",
                         answer.score ? "text-nm-success" : "text-[#ff9f8f]"
                       )}
                     >
+                      {answer.score ? <Check className="size-4" /> : <X className="size-4" />}
                       Auto-scored {answer.score ?? 0}/{answer.marks} ·{" "}
                       {answer.score ? "correct option" : "incorrect option"}
                     </div>
@@ -271,13 +272,17 @@ export default function GradeRoomPage() {
               {submissions && submissions.length > 1 && (
                 <Button variant="outline" size="lg" className="w-fit" onClick={selectNext}>
                   Next student
+                  <ArrowRight />
                 </Button>
               )}
             </>
           ) : (
             <Card>
               <CardHeader>
-                <CardTitle>Pick a submission</CardTitle>
+                <CardTitle className="flex items-center gap-2.5">
+                  <MousePointerClick className="size-5 text-nm-dim" />
+                  Pick a submission
+                </CardTitle>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
                 Multiple-choice answers are already scored. Choose a student on the left to mark

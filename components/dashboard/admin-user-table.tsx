@@ -2,7 +2,7 @@
 
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"
 import { useState } from "react"
-import { Trash2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Search, Trash2, UserCheck, UserX, Users } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -94,15 +94,19 @@ export function AdminUserTable() {
       <CardHeader>
         <div className="flex flex-wrap items-center gap-4">
           <CardTitle className="mr-auto">Users</CardTitle>
-          <Input
-            placeholder="Search name or email"
-            value={search}
-            onChange={(event) => {
-              setPage(1)
-              setSearch(event.target.value)
-            }}
-            className="h-11 max-w-[280px] flex-[1_1_200px]"
-          />
+          <div className="relative max-w-[280px] flex-[1_1_200px]">
+            <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-nm-dim" />
+            <Input
+              placeholder="Search name or email"
+              aria-label="Search users"
+              value={search}
+              onChange={(event) => {
+                setPage(1)
+                setSearch(event.target.value)
+              }}
+              className="h-11 pl-11"
+            />
+          </div>
           <Select
             value={status}
             onValueChange={(value) => {
@@ -203,10 +207,11 @@ export function AdminUserTable() {
                     updateMutation.mutate({ id: user.id, payload: { is_active: !user.is_active } })
                   }
                   className={cn(
-                    "w-[110px] rounded-xl bg-background py-2.5 text-[12.5px] transition-all disabled:opacity-50",
+                    "inline-flex w-[110px] items-center justify-center gap-1.5 rounded-xl bg-background py-2.5 text-[12.5px] transition-all disabled:opacity-50",
                     user.is_active ? "text-nm-success shadow-nm-xs" : "text-nm-dim shadow-nm-inset-sm"
                   )}
                 >
+                  {user.is_active ? <UserCheck className="size-3.5" /> : <UserX className="size-3.5" />}
                   {user.is_active ? "Active" : "Disabled"}
                 </button>
 
@@ -226,9 +231,10 @@ export function AdminUserTable() {
               </div>
             ))
           ) : (
-            <p className="rounded-2xl bg-background px-5 py-6 text-sm text-muted-foreground shadow-nm-inset">
-              No users match that search.
-            </p>
+            <div className="flex flex-col items-center gap-3 rounded-2xl bg-background px-5 py-6 text-center text-sm text-muted-foreground shadow-nm-inset">
+              <Users className="size-6 text-nm-dim" />
+              <p>No users match that search.</p>
+            </div>
           )}
         </div>
 
@@ -239,6 +245,7 @@ export function AdminUserTable() {
             </span>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((prev) => prev - 1)}>
+                <ChevronLeft />
                 Previous
               </Button>
               <Button
@@ -248,6 +255,7 @@ export function AdminUserTable() {
                 onClick={() => setPage((prev) => prev + 1)}
               >
                 Next
+                <ChevronRight />
               </Button>
             </div>
           </div>

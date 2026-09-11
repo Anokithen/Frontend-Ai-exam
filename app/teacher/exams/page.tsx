@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
-import { FileText, Plus, Trash2 } from "lucide-react"
+import { ClipboardList, FileText, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -91,9 +91,10 @@ export default function TeacherExamsPage() {
             ))}
           </div>
         ) : (
-          <p className="rounded-2xl bg-background px-6 py-10 text-center text-sm text-muted-foreground shadow-nm-inset">
-            No exams yet. Create one from an uploaded material.
-          </p>
+          <div className="flex flex-col items-center gap-3 rounded-2xl bg-background px-6 py-10 text-center text-sm text-muted-foreground shadow-nm-inset">
+            <ClipboardList className="size-6 text-nm-dim" />
+            <p>No exams yet. Create one from an uploaded material.</p>
+          </div>
         )}
       </div>
     </DashboardShell>

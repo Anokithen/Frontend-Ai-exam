@@ -1,7 +1,19 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { FileText, ImageIcon, Trash2, Download } from "lucide-react"
+import {
+  CircleAlert,
+  CircleCheck,
+  CloudUpload,
+  Download,
+  FileText,
+  FolderOpen,
+  ImageIcon,
+  LoaderCircle,
+  Sparkles,
+  Trash2,
+  Upload,
+} from "lucide-react"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
 
@@ -129,8 +141,8 @@ export function MaterialUpload() {
             htmlFor="material-file"
             className="mt-6 cursor-pointer rounded-3xl bg-background px-6 py-10 text-center shadow-nm-inset transition-shadow hover:shadow-nm-inset-lg"
           >
-            <span className="mx-auto mb-4 grid size-14 place-items-center rounded-[19px] bg-background shadow-nm-sm">
-              <span className="nm-glow size-4 rounded-[5px]" />
+            <span className="mx-auto mb-4 grid size-14 place-items-center rounded-[19px] bg-background text-nm-accent-bright shadow-nm-sm">
+              {selectedFiles.length ? <CircleCheck className="size-6 text-nm-success" /> : <CloudUpload className="size-6" />}
             </span>
             <span className="block text-[15px]">
               {selectedFiles.length ? "Ready to upload" : "Choose a file"}
@@ -148,12 +160,14 @@ export function MaterialUpload() {
           />
 
           {uploadMutation.isPending && progress && (
-            <p className="mt-5 rounded-2xl bg-background px-4 py-3 text-xs text-[#93a6bd] shadow-nm-inset-sm">
-              {progress}
+            <p className="mt-5 flex items-start gap-2.5 rounded-2xl bg-background px-4 py-3 text-xs text-[#93a6bd] shadow-nm-inset-sm">
+              <LoaderCircle className="mt-0.5 size-3.5 shrink-0 animate-spin" />
+              <span>{progress}</span>
             </p>
           )}
 
           <Button type="submit" size="lg" className="mt-6 w-full" disabled={uploadMutation.isPending}>
+            {uploadMutation.isPending ? <LoaderCircle className="animate-spin" /> : <Upload />}
             {uploadMutation.isPending ? "Working..." : "Upload"}
           </Button>
         </form>
@@ -185,13 +199,20 @@ export function MaterialUpload() {
                     <span className="truncate text-[12.5px] text-nm-dim">
                       {material.original_filename} · {formatFileSize(material.file_size)} ·{" "}
                       {material.has_text ? (
-                        <span className="text-nm-success">
+                        <span className="inline-flex items-center gap-1 text-nm-success">
+                          <CircleCheck className="size-3" />
                           text ready ({material.text_length.toLocaleString()} chars)
                         </span>
                       ) : material.file_type === "image" ? (
-                        <span className="text-nm-dim">AI reads it when you generate</span>
+                        <span className="inline-flex items-center gap-1 text-nm-dim">
+                          <Sparkles className="size-3" />
+                          AI reads it when you generate
+                        </span>
                       ) : (
-                        <span className="text-nm-warning">text not read yet</span>
+                        <span className="inline-flex items-center gap-1 text-nm-warning">
+                          <CircleAlert className="size-3" />
+                          text not read yet
+                        </span>
                       )}
                     </span>
                   </div>
@@ -222,9 +243,10 @@ export function MaterialUpload() {
               </div>
             ))
           ) : (
-            <p className="rounded-2xl bg-background px-4 py-8 text-center text-sm text-muted-foreground shadow-nm-sm">
-              No materials uploaded yet.
-            </p>
+            <div className="flex flex-col items-center gap-3 rounded-2xl bg-background px-4 py-8 text-center text-sm text-muted-foreground shadow-nm-sm">
+              <FolderOpen className="size-6 text-nm-dim" />
+              <p>No materials uploaded yet.</p>
+            </div>
           )}
         </div>
       </div>

@@ -3,7 +3,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { FileText, LayoutGrid, ListChecks, LogIn, LogOut, Sparkles, Users } from "lucide-react"
+import {
+  ClipboardList,
+  FolderOpen,
+  KeyRound,
+  LayoutDashboard,
+  LoaderCircle,
+  LogOut,
+  Sparkles,
+  Users,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import { LogoMark } from "@/components/dashboard/logo-mark"
@@ -19,14 +28,14 @@ type NavItem = { href: string; label: string; icon: React.ComponentType<{ classN
 /** Only routes that actually exist get a tab — a dead nav item is worse than a missing one. */
 const NAV: Record<UserRole, NavItem[]> = {
   teacher: [
-    { href: "/teacher/dashboard", label: "Dashboard", icon: LayoutGrid },
-    { href: "/teacher/materials", label: "Materials", icon: FileText },
+    { href: "/teacher/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/teacher/materials", label: "Materials", icon: FolderOpen },
     { href: "/teacher/exams/new", label: "Generate", icon: Sparkles },
-    { href: "/teacher/exams", label: "Exams", icon: ListChecks },
+    { href: "/teacher/exams", label: "Exams", icon: ClipboardList },
   ],
   student: [
-    { href: "/student/dashboard", label: "Dashboard", icon: LayoutGrid },
-    { href: "/student/rooms/join", label: "Join room", icon: LogIn },
+    { href: "/student/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/student/rooms/join", label: "Join room", icon: KeyRound },
   ],
   admin: [{ href: "/admin/dashboard", label: "Users", icon: Users }],
 }
@@ -94,18 +103,20 @@ export function DashboardShell({
           <nav className="mr-auto hidden flex-wrap gap-2 rounded-2xl bg-background p-1.5 shadow-nm-inset md:flex">
             {nav.map((item) => {
               const active = item.href === currentHref
+              const Icon = item.icon
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "rounded-xl px-4 py-2.5 text-[13.5px] transition-all",
+                    "flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13.5px] transition-all",
                     active
                       ? "bg-background text-foreground shadow-nm-xs"
                       : "text-[#93a6bd] hover:text-foreground"
                   )}
                 >
+                  <Icon className={cn("size-4", active && "text-nm-accent-bright")} />
                   {item.label}
                 </Link>
               )
@@ -128,7 +139,11 @@ export function DashboardShell({
               onClick={() => logoutMutation.mutate()}
               disabled={logoutMutation.isPending}
             >
-              <LogOut className="size-4" />
+              {logoutMutation.isPending ? (
+                <LoaderCircle className="size-4 animate-spin" />
+              ) : (
+                <LogOut className="size-4" />
+              )}
             </Button>
           </div>
         </div>

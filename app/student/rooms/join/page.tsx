@@ -3,6 +3,7 @@
 import { useMutation } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { KeyRound, LoaderCircle, LogIn } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -33,7 +34,10 @@ export default function JoinRoomPage() {
 
       <Card className="mx-auto max-w-md">
         <CardHeader>
-          <CardTitle>Enter invite code</CardTitle>
+          <CardTitle className="flex items-center gap-2.5">
+            <KeyRound className="size-5 text-nm-accent-bright" />
+            Enter invite code
+          </CardTitle>
           <CardDescription>Five characters, the same for everyone in the room.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -57,6 +61,7 @@ export default function JoinRoomPage() {
               />
             </div>
             <Button type="submit" size="lg" className="w-full" disabled={joinMutation.isPending}>
+              {joinMutation.isPending ? <LoaderCircle className="animate-spin" /> : <LogIn />}
               {joinMutation.isPending ? "Joining..." : "Join"}
             </Button>
           </form>
