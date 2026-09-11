@@ -20,12 +20,20 @@ export interface QuestionInput {
 
 export type StageStatus = "pending" | "running" | "done" | "failed"
 
+/** A question as the model wrote it, before it has been saved and given an id. */
+export type GeneratedQuestion = Pick<Question, "type" | "prompt" | "marks"> & {
+  options?: string[]
+  correct_option_index?: number
+}
+
 /** How far through the requested questions the writing stage is. */
 export interface QuestionProgress {
   /** Questions the model has finished writing. */
   created: number
   /** Number of the question being written right now; null between questions. */
   writing: number | null
+  /** Type of the question being written right now. */
+  writing_type?: Question["type"]
   /** How many questions were asked for. */
   total: number
 }
@@ -36,6 +44,8 @@ export interface GenerationStage {
   status: StageStatus
   detail?: string
   progress?: QuestionProgress
+  /** The questions written so far, in the order they landed. */
+  questions?: GeneratedQuestion[]
 }
 
 export interface GeneratePayload {
@@ -51,7 +61,7 @@ export interface GeneratePayload {
 export type StreamEvent =
   | { type: "stages"; stages: GenerationStage[] }
   | { type: "stage"; id: string; status: StageStatus; detail?: string }
-  | ({ type: "progress"; id: string } & QuestionProgress)
+  | ({ type: "progress"; id: string; question?: GeneratedQuestion } & QuestionProgress)
   | { type: "done"; exam: Exam }
   | { type: "error"; code: string; message: string }
 

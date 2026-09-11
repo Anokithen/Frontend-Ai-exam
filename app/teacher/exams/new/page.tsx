@@ -132,9 +132,17 @@ export default function NewExamPage() {
               )
             )
           } else if (event.type === "progress") {
-            const progress = { created: event.created, writing: event.writing, total: event.total }
+            const { created, writing, writing_type, total, question } = event
             setStages((current) =>
-              (current ?? []).map((stage) => (stage.id === event.id ? { ...stage, progress } : stage))
+              (current ?? []).map((stage) =>
+                stage.id === event.id
+                  ? {
+                      ...stage,
+                      progress: { created, writing, writing_type, total },
+                      questions: question ? [...(stage.questions ?? []), question] : stage.questions,
+                    }
+                  : stage
+              )
             )
           }
         }
