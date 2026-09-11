@@ -55,7 +55,7 @@ export default function StudentDashboardPage() {
         <p className="text-muted-foreground">Loading dashboard...</p>
       ) : (
         <div className="flex flex-col gap-8">
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-5">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(210px,100%),1fr))] gap-5">
             <StatCard label="Upcoming exams" value={data?.upcoming_exams.length ?? 0} />
             <StatCard label="Active exams" value={data?.active_exams.length ?? 0} />
             <StatCard label="Completed exams" value={data?.completed_exams.length ?? 0} />

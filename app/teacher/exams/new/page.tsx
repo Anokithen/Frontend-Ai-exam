@@ -155,7 +155,7 @@ export default function NewExamPage() {
       <PageHeader title="Generate an exam" description="Pick the material and the shape of the paper." />
 
       <form
-        className="grid grid-cols-[repeat(auto-fit,minmax(340px,1fr))] items-start gap-6"
+        className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] items-start gap-6"
         onSubmit={(event) => {
           event.preventDefault()
           if (!materialTitle || group.length === 0) {

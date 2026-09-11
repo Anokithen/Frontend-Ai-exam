@@ -98,6 +98,20 @@
   --sidebar-ring: var(--nm-accent);
 }
 
+/*
+ * On a phone the desktop shadow offsets are large relative to the screen and the pairs start to
+ * overlap into mud; one step down keeps the depth reading crisp at 390px.
+ */
+@media (max-width: 640px) {
+  :root {
+    --nm-depth-md: 8px 8px 18px var(--nm-shadow-dark), -7px -7px 16px var(--nm-shadow-light);
+    --nm-depth-lg: 12px 12px 26px var(--nm-shadow-dark), -10px -10px 24px var(--nm-shadow-light);
+    --nm-depth-accent:
+      7px 7px 16px var(--nm-shadow-dark), -6px -6px 14px var(--nm-shadow-light),
+      inset 0 1px 0 rgb(255 255 255 / 0.28);
+  }
+}
+
 /* Single-theme by design: the toggle changes nothing, so a stale `light` class can't break it. */
 .dark {
   --background: var(--nm-surface);

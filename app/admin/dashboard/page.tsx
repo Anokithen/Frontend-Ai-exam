@@ -35,7 +35,7 @@ export default function AdminDashboardPage() {
         <p className="text-muted-foreground">Loading dashboard...</p>
       ) : (
         <>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-5">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-5">
             <StatCard label="Total users" value={data?.total_users ?? 0} />
             <StatCard label="Teachers" value={data?.total_teachers ?? 0} />
             <StatCard label="Students" value={data?.total_students ?? 0} />

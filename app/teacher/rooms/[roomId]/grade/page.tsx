@@ -143,12 +143,13 @@ export default function GradeRoomPage() {
   return (
     <DashboardShell title="Grading">
       <div className="flex flex-wrap items-start gap-6">
-        <aside className="min-w-0 max-w-[320px] flex-[1_1_260px] rounded-[26px] bg-background p-6 shadow-nm-md">
+        <aside className="w-full min-w-0 flex-[1_1_260px] rounded-[26px] bg-background p-5 shadow-nm-md sm:p-6 md:w-auto md:max-w-[320px]">
           <h2 className="font-heading text-[19px] font-semibold">Submissions</h2>
           <p className="mt-1.5 mb-5 text-[13px] text-nm-dim">
             {submissions?.length ? `${submissions.length} in this room` : "This room"}
           </p>
-          <div className="flex flex-col gap-3">
+          {/* Phones scroll the list sideways as chips; from md up it is the vertical rail. */}
+          <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:-mx-6 sm:px-6 md:mx-0 md:flex-col md:overflow-visible md:px-0 md:pb-0">
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading...</p>
             ) : submissions?.length ? (
@@ -162,7 +163,7 @@ export default function GradeRoomPage() {
                     aria-pressed={selected}
                     onClick={() => setSelectedId(item.id)}
                     className={cn(
-                      "flex w-full items-center gap-3.5 rounded-[17px] bg-background px-4 py-3.5 transition-all",
+                      "flex w-auto shrink-0 items-center gap-3.5 rounded-[17px] bg-background px-4 py-3.5 transition-all md:w-full md:shrink",
                       selected ? "text-foreground shadow-nm-inset" : "text-[#a4b5c8] shadow-nm-sm"
                     )}
                   >
@@ -170,7 +171,7 @@ export default function GradeRoomPage() {
                       {initials(item.student_name)}
                     </span>
                     <span className="min-w-0 flex-1 text-left">
-                      <span className="block truncate text-sm">{item.student_name}</span>
+                      <span className="block truncate text-sm whitespace-nowrap">{item.student_name}</span>
                       <span className="block text-xs text-nm-dim">
                         {item.total_score ?? 0} / {item.max_score}
                       </span>
@@ -194,10 +195,10 @@ export default function GradeRoomPage() {
           </div>
         </aside>
 
-        <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-5">
+        <div className="flex w-full min-w-0 flex-[1_1_420px] flex-col gap-5">
           {submission ? (
             <>
-              <div className="flex flex-wrap items-center gap-5 rounded-3xl bg-background p-7 shadow-nm-md">
+              <div className="flex flex-wrap items-center gap-5 rounded-3xl bg-background p-5 shadow-nm-md sm:p-7">
                 <div className="min-w-[180px] flex-1">
                   <h2 className="font-heading text-[21px] font-semibold">{submission.student_name}</h2>
                   <div className="mt-1.5 text-[13.5px] text-nm-dim">
@@ -219,7 +220,7 @@ export default function GradeRoomPage() {
               </div>
 
               {submission.answers?.map((answer) => (
-                <div key={answer.question_id} className="rounded-[26px] bg-background px-7 py-6 shadow-nm-md">
+                <div key={answer.question_id} className="rounded-[26px] bg-background px-5 py-5 shadow-nm-md sm:px-7 sm:py-6">
                   <div className="mb-4 flex flex-wrap items-center gap-3.5">
                     <span
                       className={cn(

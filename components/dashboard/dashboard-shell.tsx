@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { LogOut } from "lucide-react"
+import { FileText, LayoutGrid, ListChecks, LogIn, LogOut, Sparkles, Users } from "lucide-react"
 import { toast } from "sonner"
 
 import { LogoMark } from "@/components/dashboard/logo-mark"
@@ -14,19 +14,21 @@ import { clearSession } from "@/lib/tokens"
 import { authService } from "@/services/auth.service"
 import type { UserRole } from "@/types/auth"
 
+type NavItem = { href: string; label: string; icon: React.ComponentType<{ className?: string }> }
+
 /** Only routes that actually exist get a tab — a dead nav item is worse than a missing one. */
-const NAV: Record<UserRole, { href: string; label: string }[]> = {
+const NAV: Record<UserRole, NavItem[]> = {
   teacher: [
-    { href: "/teacher/dashboard", label: "Dashboard" },
-    { href: "/teacher/materials", label: "Materials" },
-    { href: "/teacher/exams/new", label: "Generate" },
-    { href: "/teacher/exams", label: "Exams" },
+    { href: "/teacher/dashboard", label: "Dashboard", icon: LayoutGrid },
+    { href: "/teacher/materials", label: "Materials", icon: FileText },
+    { href: "/teacher/exams/new", label: "Generate", icon: Sparkles },
+    { href: "/teacher/exams", label: "Exams", icon: ListChecks },
   ],
   student: [
-    { href: "/student/dashboard", label: "Dashboard" },
-    { href: "/student/rooms/join", label: "Join room" },
+    { href: "/student/dashboard", label: "Dashboard", icon: LayoutGrid },
+    { href: "/student/rooms/join", label: "Join room", icon: LogIn },
   ],
-  admin: [{ href: "/admin/dashboard", label: "Users" }],
+  admin: [{ href: "/admin/dashboard", label: "Users", icon: Users }],
 }
 
 const WORDMARK: Record<UserRole, string> = {
@@ -82,14 +84,14 @@ export function DashboardShell({
   return (
     <div className="flex min-h-svh flex-col bg-background text-foreground">
       <header className="sticky top-0 z-10 bg-background shadow-[0_10px_26px_rgb(15_22_30_/_0.55)]">
-        <div className="mx-auto flex w-full max-w-[1240px] flex-wrap items-center gap-4 px-6 py-4">
-          <Link href={`/${role}/dashboard`} className="mr-1 flex items-center gap-3 text-foreground hover:text-foreground">
+        <div className="mx-auto flex w-full max-w-[1240px] flex-wrap items-center gap-3 px-4 py-3.5 sm:gap-4 sm:px-6 sm:py-4">
+          <Link href={`/${role}/dashboard`} className="mr-auto flex items-center gap-3 text-foreground hover:text-foreground md:mr-1">
             <LogoMark />
             <span className="font-heading text-[15px] font-semibold">{WORDMARK[role]}</span>
           </Link>
 
-          {/* The nav rail is sunken and each tab lifts out of it when it is the current page. */}
-          <nav className="mr-auto flex flex-wrap gap-2 rounded-2xl bg-background p-1.5 shadow-nm-inset">
+          {/* Desktop: the nav rail is sunken and each tab lifts out of it when it is the current page. */}
+          <nav className="mr-auto hidden flex-wrap gap-2 rounded-2xl bg-background p-1.5 shadow-nm-inset md:flex">
             {nav.map((item) => {
               const active = item.href === currentHref
               return (
@@ -113,7 +115,7 @@ export function DashboardShell({
           <div className="flex items-center gap-3">
             {user && (
               <span
-                className="grid size-10 place-items-center rounded-xl bg-background text-[13.5px] font-medium text-nm-accent-bright shadow-nm-sm"
+                className="grid size-9 place-items-center rounded-xl bg-background text-[13px] font-medium text-nm-accent-bright shadow-nm-sm sm:size-10 sm:text-[13.5px]"
                 title={user.full_name}
               >
                 {initials(user.full_name)}
@@ -132,10 +134,37 @@ export function DashboardShell({
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[1240px] flex-1 px-6 pt-9 pb-16">
+      {/* Room at the bottom on phones so the tab bar never covers the last card. */}
+      <main className="mx-auto w-full max-w-[1240px] flex-1 px-4 pt-6 pb-28 sm:px-6 sm:pt-9 md:pb-16">
         <h1 className="sr-only">{title}</h1>
         {children}
       </main>
+
+      {/* Phones: the same sunken rail, moved to the bottom where a thumb can reach it. */}
+      <nav
+        aria-label="Primary"
+        className="fixed inset-x-0 bottom-0 z-10 grid gap-1.5 bg-background px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_22px_rgb(15_22_30_/_0.5)] md:hidden"
+        style={{ gridTemplateColumns: `repeat(${nav.length}, minmax(0, 1fr))` }}
+      >
+        {nav.map((item) => {
+          const active = item.href === currentHref
+          const Icon = item.icon
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "flex h-[58px] flex-col items-center justify-center gap-1.5 rounded-2xl text-[11px] transition-all",
+                active ? "bg-background text-nm-accent-bright shadow-nm-xs" : "text-nm-dim hover:text-foreground"
+              )}
+            >
+              <Icon className="size-5" />
+              {item.label}
+            </Link>
+          )
+        })}
+      </nav>
     </div>
   )
 }

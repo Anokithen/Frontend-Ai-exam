@@ -71,12 +71,12 @@ export default function RoomDetailPage() {
 
   return (
     <DashboardShell title={room.exam_title ?? "Exam room"}>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(330px,1fr))] items-start gap-6">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(330px,100%),1fr))] items-start gap-6">
         <div className="flex min-w-0 flex-col gap-6">
-          <div className="rounded-[30px] bg-background p-8 text-center shadow-nm-lg">
+          <div className="rounded-[30px] bg-background p-6 text-center shadow-nm-lg sm:p-8">
             <div className="mb-4 text-[13.5px] text-nm-dim">Invite code</div>
             {/* The code is pressed into the surface — the one thing on the page to read aloud. */}
-            <div className="rounded-[22px] bg-background px-3 py-6 font-heading text-[44px] font-bold tracking-[0.18em] text-nm-accent-bright shadow-nm-inset-lg [text-shadow:0_0_22px_rgb(77_141_255_/_0.35)]">
+            <div className="rounded-[22px] bg-background px-3 py-5 font-heading text-[38px] font-bold tracking-[0.16em] text-nm-accent-bright shadow-nm-inset-lg [text-shadow:0_0_22px_rgb(77_141_255_/_0.35)] sm:py-6 sm:text-[44px] sm:tracking-[0.18em]">
               {room.invite_code}
             </div>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -95,7 +95,7 @@ export default function RoomDetailPage() {
               <CardDescription>{room.time_limit_minutes} min · joined by invite code</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3.5">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(min(120px,100%),1fr))] gap-3.5">
                 {[
                   { value: participants.length, label: "Joined" },
                   { value: submitted, label: "Submitted" },

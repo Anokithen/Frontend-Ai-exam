@@ -51,7 +51,7 @@ export default function TeacherDashboardPage() {
         }
       />
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-5">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(210px,100%),1fr))] gap-5">
         <StatCard label="Exams created" value={data?.total_exams ?? 0} />
         <StatCard label="Students reached" value={data?.total_students ?? 0} />
         <StatCard label="Running now" value={active} delta={active ? "live rooms open" : undefined} up={active > 0} />

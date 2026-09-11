@@ -94,7 +94,7 @@ export function MaterialUpload() {
         : `${selectedFiles.length} files selected — they'll share one title and group together`
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(330px,1fr))] items-start gap-6">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(330px,100%),1fr))] items-start gap-6">
       <Card>
         <CardHeader>
           <CardTitle>Upload material</CardTitle>

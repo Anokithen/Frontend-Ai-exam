@@ -141,7 +141,7 @@ export default function TakeExamPage() {
     <div className="min-h-svh bg-background text-foreground">
       {/* The exam has no nav: nothing to click away to while the clock runs. */}
       <header className="sticky top-0 z-10 bg-background shadow-[0_10px_26px_rgb(15_22_30_/_0.55)]">
-        <div className="mx-auto flex w-full max-w-[1080px] flex-wrap items-center gap-4 px-6 py-4">
+        <div className="mx-auto flex w-full max-w-[1080px] flex-wrap items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
           <div className="mr-auto flex items-center gap-3">
             <LogoMark />
             <div>
@@ -165,10 +165,10 @@ export default function TakeExamPage() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-[1080px] flex-wrap items-start gap-6 px-6 pt-8 pb-16">
+      <main className="mx-auto flex w-full max-w-[1080px] flex-wrap items-start gap-5 px-4 pt-6 pb-16 sm:gap-6 sm:px-6 sm:pt-8">
         <div className="flex min-w-0 flex-[1_1_340px] flex-col gap-5">
           {question ? (
-            <div className="rounded-[28px] bg-background p-8 shadow-nm-md">
+            <div className="rounded-[28px] bg-background p-5 shadow-nm-md sm:p-8">
               <div className="mb-5 flex flex-wrap items-center gap-3.5">
                 <span className="text-[13px] text-nm-dim">
                   Question {index + 1} of {questions.length}
@@ -186,7 +186,7 @@ export default function TakeExamPage() {
                 </span>
               </div>
 
-              <h2 className="mb-7 font-heading text-[22px] leading-snug font-semibold tracking-tight text-pretty">
+              <h2 className="mb-6 font-heading text-[20px] leading-snug font-semibold tracking-tight text-pretty sm:mb-7 sm:text-[22px]">
                 {question.prompt}
               </h2>
 
@@ -203,7 +203,7 @@ export default function TakeExamPage() {
                         aria-checked={chosen}
                         onClick={() => saveAnswer(question.id, { selected_option_index: optIndex })}
                         className={cn(
-                          "flex items-center gap-4 rounded-[18px] bg-background px-5 py-4.5 text-left text-[15.5px] transition-all",
+                          "flex min-h-[60px] items-center gap-4 rounded-[18px] bg-background px-4 py-3.5 text-left text-[15px] transition-all sm:px-5 sm:py-4.5 sm:text-[15.5px]",
                           chosen ? "text-foreground shadow-nm-inset-lg" : "text-[#a4b5c8] shadow-nm"
                         )}
                       >
@@ -246,7 +246,7 @@ export default function TakeExamPage() {
                 </div>
               )}
 
-              <div className="mt-7 flex flex-wrap gap-3.5">
+              <div className="mt-7 flex flex-wrap gap-3">
                 <Button
                   variant="outline"
                   size="lg"
@@ -281,9 +281,9 @@ export default function TakeExamPage() {
           )}
         </div>
 
-        <aside className="sticky top-24 min-w-0 max-w-[280px] flex-[1_1_240px] rounded-[26px] bg-background p-6 shadow-nm-md">
+        <aside className="min-w-0 w-full flex-[1_1_240px] rounded-[26px] bg-background p-5 shadow-nm-md sm:p-6 md:sticky md:top-24 md:w-auto md:max-w-[280px]">
           <div className="mb-4 text-[13px] text-nm-dim">Progress</div>
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(42px,1fr))] gap-2.5">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(44px,1fr))] gap-2.5">
             {questions.map((item, itemIndex) => {
               const answer = answers[item.id]
               const has = answer?.selected_option_index != null || Boolean(answer?.response_text?.trim())

@@ -176,10 +176,10 @@ export default function ExamEditorPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] items-start gap-6">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] items-start gap-6">
         <div className="flex min-w-0 flex-col gap-4">
           {questions.map((question, index) => (
-            <div key={question._key} className="rounded-3xl bg-background px-6 py-6 shadow-nm-md">
+            <div key={question._key} className="rounded-3xl bg-background px-4 py-5 shadow-nm-md sm:px-6 sm:py-6">
               <div className="mb-4 flex flex-wrap items-center gap-3.5">
                 <span className="grid size-9 place-items-center rounded-xl bg-background font-heading text-[13.5px] text-nm-accent-bright shadow-nm-xs">
                   {index + 1}
@@ -309,7 +309,7 @@ export default function ExamEditorPage() {
           </div>
         </div>
 
-        <div className="sticky top-24 flex min-w-0 flex-col gap-5">
+        <div className="flex min-w-0 flex-col gap-5 md:sticky md:top-24">
           <Card>
             <CardHeader>
               <CardTitle>Paper summary</CardTitle>

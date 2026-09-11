@@ -47,14 +47,14 @@ const HERO_STATS = [
 export default function Page() {
   return (
     <div className="min-h-svh overflow-x-hidden bg-background text-foreground">
-      <header className="mx-auto flex max-w-[1180px] flex-wrap items-center gap-5 px-6 py-7">
+      <header className="mx-auto flex max-w-[1180px] flex-wrap items-center gap-4 px-4 py-5 sm:gap-5 sm:px-6 sm:py-7">
         <div className="mr-auto flex items-center gap-3.5">
           <LogoMark className="size-10 rounded-2xl" chipClassName="size-3.5" />
           <span className="font-heading text-[17px] font-semibold tracking-tight">
             AI Teacher Exam Platform
           </span>
         </div>
-        <nav className="flex items-center gap-7 text-[14.5px]">
+        <nav className="hidden items-center gap-7 text-[14.5px] sm:flex">
           <a href="#features" className="text-[#93a6bd] hover:text-foreground">
             Features
           </a>
@@ -70,7 +70,7 @@ export default function Page() {
         </div>
       </header>
 
-      <section className="mx-auto grid max-w-[1180px] grid-cols-[repeat(auto-fit,minmax(320px,1fr))] items-center gap-14 px-6 pt-12 pb-20">
+      <section className="mx-auto grid max-w-[1180px] grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] items-center gap-10 px-4 pt-8 pb-14 sm:gap-14 sm:px-6 sm:pt-12 sm:pb-20">
         <div className="min-w-0">
           <div className="mb-7 inline-flex items-center gap-2.5 rounded-full bg-background px-4 py-2.5 text-[13px] text-[#93a6bd] shadow-nm-inset-sm">
             <span className="size-[7px] rounded-full bg-nm-success shadow-[0_0_10px_var(--nm-success)]" />
@@ -85,7 +85,7 @@ export default function Page() {
             Generate exam questions from your notes with AI, run timed online exams, and get instant
             analytics.
           </p>
-          <div className="mt-9 flex flex-wrap gap-4">
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
             <Button size="lg" className="h-14 px-8 text-[15.5px]" render={<Link href="/register" />}>
               Create an exam
             </Button>
@@ -111,14 +111,14 @@ export default function Page() {
         <GenerationPreview />
       </section>
 
-      <section id="features" className="mx-auto max-w-[1180px] px-6 pt-8 pb-24">
+      <section id="features" className="mx-auto max-w-[1180px] px-4 pt-6 pb-16 sm:px-6 sm:pt-8 sm:pb-24">
         <h2 className="font-heading text-[clamp(26px,3.4vw,36px)] font-semibold tracking-tight">
           Everything the exam takes
         </h2>
         <p className="mt-2.5 max-w-[48ch] text-base text-nm-dim">
           From the file on your desk to a marked paper, without leaving the browser.
         </p>
-        <div className="mt-11 grid grid-cols-[repeat(auto-fit,minmax(290px,1fr))] gap-6">
+        <div className="mt-11 grid grid-cols-[repeat(auto-fit,minmax(min(290px,100%),1fr))] gap-6">
           {FEATURES.map((feature) => (
             <div
               key={feature.title}
@@ -136,11 +136,11 @@ export default function Page() {
         </div>
       </section>
 
-      <section id="how" className="mx-auto max-w-[1180px] px-6 pb-24">
+      <section id="how" className="mx-auto max-w-[1180px] px-4 pb-16 sm:px-6 sm:pb-24">
         <h2 className="font-heading text-[clamp(26px,3.4vw,36px)] font-semibold tracking-tight">
           Four steps, start to marked
         </h2>
-        <div className="mt-11 grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6">
+        <div className="mt-11 grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-6">
           {STEPS.map((step) => (
             <div key={step.n} className="rounded-[26px] bg-background px-7 py-7 shadow-nm-inset-lg">
               <div className="mb-5 grid size-11 place-items-center rounded-full bg-background font-heading text-[15px] font-semibold text-[#8fb8ff] shadow-nm-xs">
@@ -155,15 +155,15 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1180px] px-6 pb-24">
-        <div className="rounded-[34px] bg-background p-[clamp(38px,6vw,68px)] text-center shadow-nm-lg">
+      <section className="mx-auto max-w-[1180px] px-4 pb-16 sm:px-6 sm:pb-24">
+        <div className="rounded-[34px] bg-background p-[clamp(28px,6vw,68px)] text-center shadow-nm-lg">
           <h2 className="font-heading text-[clamp(28px,4vw,42px)] font-bold tracking-[-0.025em] text-pretty">
             Set your next paper tonight.
           </h2>
           <p className="mx-auto mt-4 max-w-[46ch] text-[16.5px] text-muted-foreground text-pretty">
             Upload one set of notes and see the questions it produces. No card, no setup.
           </p>
-          <div className="mt-9 flex flex-wrap justify-center gap-4">
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4">
             <Button size="lg" className="h-14 px-8 text-[15.5px]" render={<Link href="/register" />}>
               Create account
             </Button>
@@ -179,7 +179,7 @@ export default function Page() {
         </div>
       </section>
 
-      <footer className="mx-auto flex max-w-[1180px] flex-wrap items-center gap-5 px-6 pb-14 text-[13.5px] text-nm-faint">
+      <footer className="mx-auto flex max-w-[1180px] flex-wrap items-center gap-5 px-4 pb-14 text-[13.5px] text-nm-faint sm:px-6">
         <span className="mr-auto">© 2026 AI Teacher Exam Platform</span>
         <a href="#features" className="text-nm-faint hover:text-nm-accent-soft">
           Features
